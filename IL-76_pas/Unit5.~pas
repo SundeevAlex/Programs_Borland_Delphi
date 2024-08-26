@@ -1,0 +1,113 @@
+unit Unit5;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+
+type
+  TForm5 = class(TForm)
+    ComboBox1: TComboBox;
+    Edit1: TEdit;
+    Button1: TButton;
+    Button2: TButton;
+    Label1: TLabel;
+    procedure Button2Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form5: TForm5;
+  lop,ilop,il,ch:integer;
+  sss33:string[14];
+implementation
+uses unit1;
+{$R *.dfm}
+
+procedure TForm5.Button2Click(Sender: TObject);
+begin
+s3:=combobox1.Text;
+sss33:=s3;
+if (sss33=PPM[kol])or(s3='') then
+    begin
+    FormActivate(Sender);
+    exit;
+    end;
+form1.ZAP;                              
+form1.rasschet;
+//form1.memo1.clear;
+clik:=1;
+form5.Close;
+end;
+
+procedure TForm5.FormActivate(Sender: TObject);
+begin
+ComboBox1.clear;
+edit1.clear;
+edit1.SetFocus;
+lop:=0;
+assignfile(f1,'Baza.txt');
+ {$i-}
+reset(f1);
+ {$i-}
+while not eof(f1) do
+  begin
+  readln(f1,s3);
+  ComboBox1.Items.Add(s3);
+  lop:=lop+1;
+  end;
+closefile(f1);
+ComboBox1.itemIndex:=-1;
+Label1.Caption:=IntToStr(ComboBox1.Items.Count);
+end;
+
+procedure TForm5.Button1Click(Sender: TObject);
+begin
+ch:=0;
+for ilop:=0 to lop do
+   BEGIN
+   for il:=1 to length(edit1.text) do
+   begin
+   sss33:=ComboBox1.Items[ilop];
+   if edit1.text[il]=sss33[il] then ch:=ch+1;
+   end;
+   if ch=length(edit1.text) then
+      BEGIN
+      ComboBox1.itemIndex:=ilop;
+      EXIT;
+      END;
+   ch:=0;
+   ComboBox1.itemIndex:=-1;
+   END;
+ch:=ord(192);
+sss33:=chr(ord(192));
+end;
+
+procedure TForm5.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+'а'..'я': key:=Chr(ord(key)-32);
+'А'..'Я': ;
+'A'..'Z': ;
+'a'..'z': key:=Chr(ord(key)-32);
+//#32 : ; // пробел
+#22 : ; // Ctrl & V  вставить
+#3 : ;  // Ctrl & C  копировать
+'-' : ; // -
+'.' : ; // -
+',' : ; // -
+#13: Button1Click(Sender);
+else key := Chr(0); // остальные символы запрещены
+end;
+
+end;
+
+end.

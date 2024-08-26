@@ -1,0 +1,21 @@
+Creating the help file hel.hlp.
+
+Processing D:\Documents and Settings\Alex\Мои документы\Borland Studio Projects\Notam\123.rtf
+
+    HC1010: Note: 
+	The following mapped Topic IDs were not used in any topic:
+	1
+    HC4009: Warning: 
+	The Topic ID "we" specified in the Project files as the Default Topic does not exist.
+Resolving keywords...
+Adding bitmaps...
+0	Topics
+0	Jumps
+0	Keywords
+0	Bitmaps
+
+
+Created D:\Documents and Settings\Alex\Мои документы\Borland Studio Projects\Notam\hel.hlp, 3,745 bytes
+Compile time: 0 minutes, 0 seconds
+1 note, 1 warning
+

@@ -1,0 +1,29 @@
+; This file is maintained by HCW. Do not modify this file directly.
+
+[OPTIONS]
+LCID=0x419 0x0 0x0 ; Русский
+REPORT=Yes
+HLP=sqroot.hlp
+
+[FILES]
+Sqroot.rtf
+
+[MAP]
+IDH_1=1
+IDH_10=10
+IDH_11=11
+IDH_12=12
+IDH_13=13
+IDH_14=14
+IDH_15=15
+IDH_2=2
+IDH_3=3
+IDH_4=4
+IDH_5=5
+IDH_6=6
+IDH_7=7
+IDH_8=8
+IDH_9=9
+
+[WINDOWS]
+main="Описание программы",,27904,(r14876671),(r38144),f3

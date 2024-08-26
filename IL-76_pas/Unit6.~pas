@@ -1,0 +1,342 @@
+unit Unit6;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ComCtrls, Grids;
+
+type
+  TForm6 = class(TForm)
+    StringGrid1: TStringGrid;
+    ComboBox1: TComboBox;
+    Edit1: TEdit;
+    Button1: TButton;
+    Button2: TButton;
+    Edit2: TEdit;
+    Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
+    Edit3: TEdit;
+    Button7: TButton;
+    Button8: TButton;
+    Label1: TLabel;
+    Button9: TButton;
+    OpenDialog1: TOpenDialog;
+    procedure FormActivate(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure ComboBox1KeyPress(Sender: TObject; var Key: Char);
+    procedure FormCreate(Sender: TObject);
+    procedure Edit2KeyPress(Sender: TObject; var Key: Char);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Edit3KeyPress(Sender: TObject; var Key: Char);
+    procedure Button8Click(Sender: TObject);
+    procedure ComboBox1Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form6: TForm6;
+    ilop,il,j:integer;
+SearchRec: TSearchRec;    
+implementation
+uses unit1,unit5, Unit7;
+{$R *.dfm}
+
+procedure TForm6.FormActivate(Sender: TObject);
+Label a1;
+begin
+lop:=0;
+ComboBox1.clear;
+edit1.clear;edit2.clear;edit3.clear;
+StringGrid1.RowCount:=1;
+StringGrid1.Row:=0;
+edit1.SetFocus;
+s3:='Traks\Baza.txt';
+a1:
+assignfile(f1,s3);
+ {$i-}
+reset(f1);
+ {$i+}
+if IOResult <> 0 then begin s3:='Baza.txt';goto a1;end;   
+while not eof(f1) do
+  begin
+  readln(f1,s3);
+  ComboBox1.Items.Add(s3);
+  lop:=lop+1;
+  end;
+closefile(f1);
+if lop=0 then begin s3:='Baza.txt';goto a1;end;
+ComboBox1.itemIndex:=-1;
+Label1.Caption:=IntToStr(ComboBox1.Items.Count);
+end;
+
+procedure TForm6.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+'а'..'я': key:=Chr(ord(key)-32);
+'А'..'Я': ;
+'A'..'Z': ;
+'a'..'z': key:=Chr(ord(key)-32);
+//#32 : ; // пробел
+#22 : ; // Ctrl & V  вставить
+#3 : ;  // Ctrl & C  копировать
+'-','+','.',',','_' : ; // -
+#13: Button1Click(Sender);
+else key := Chr(0); // остальные символы запрещены
+end;
+end;
+
+procedure TForm6.Button1Click(Sender: TObject);
+begin
+ch:=0;
+for ilop:=0 to lop do
+   BEGIN
+   for il:=1 to length(edit1.text) do
+   begin
+   sss33:=ComboBox1.Items[ilop];
+   if edit1.text[il]=sss33[il] then ch:=ch+1;
+   end;
+   if ch=length(edit1.text) then
+      BEGIN
+      ComboBox1.itemIndex:=ilop;
+      edit2.setfocus;
+      EXIT;
+      END;
+   ch:=0;
+   ComboBox1.itemIndex:=-1;
+   END;
+ch:=ord(192);
+sss33:=chr(ord(192));
+MessageDlg('Не найдено!', mtError,[mbOk],0);
+end;
+
+procedure TForm6.Button2Click(Sender: TObject);
+begin
+if (combobox1.Text='') then
+ begin
+ edit1.SetFocus;exit;
+ end;
+if (edit2.text='') then
+ begin
+ edit2.SetFocus; exit;
+ end;
+ch:=StringGrid1.RowCount;
+StringGrid1.RowCount:=StringGrid1.RowCount+1;
+StringGrid1.Cells[1,StringGrid1.RowCount-1]:=combobox1.Text;
+StringGrid1.Cells[2,StringGrid1.RowCount-1]:=edit2.Text;
+StringGrid1.Row:=StringGrid1.Row+1;
+ComboBox1.itemIndex:=-1;
+edit1.clear;edit2.clear;edit1.setfocus;
+end;
+
+procedure TForm6.ComboBox1KeyPress(Sender: TObject; var Key: Char);
+begin
+key := Chr(0);
+end;
+
+procedure TForm6.FormCreate(Sender: TObject);
+begin
+StringGrid1.Cells[1,0]:='Пункт          Широта     Долгота  dM';
+StringGrid1.Cells[2,0]:='Vист.';
+end;
+
+procedure TForm6.Edit2KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+#13: Button2Click(Sender);
+else key := Chr(0); // остальные символы запрещены
+end;
+end;
+
+procedure TForm6.Button3Click(Sender: TObject);
+begin
+if StringGrid1.RowCount<2 then exit;
+if StringGrid1.Row<>0 then
+  begin
+  for j:=StringGrid1.Row to StringGrid1.RowCount-1 do
+                  begin
+                  StringGrid1.Cells[1,j]:=StringGrid1.Cells[1,j+1];
+                  StringGrid1.Cells[2,j]:=StringGrid1.Cells[2,j+1];
+                  end;
+  StringGrid1.RowCount:=StringGrid1.RowCount-1;
+  edit1.SetFocus;
+  end;
+end;
+
+procedure TForm6.Button4Click(Sender: TObject);
+begin
+  if StringGrid1.Row<2 then exit;
+  y:=StringGrid1.Cells[1,StringGrid1.Row-1];
+  y1:=StringGrid1.Cells[2,StringGrid1.Row-1];
+  StringGrid1.Cells[1,StringGrid1.Row-1]:=StringGrid1.Cells[1,StringGrid1.Row];
+  StringGrid1.Cells[2,StringGrid1.Row-1]:=StringGrid1.Cells[2,StringGrid1.Row];
+  StringGrid1.Cells[1,StringGrid1.Row]:=y;
+  StringGrid1.Cells[2,StringGrid1.Row]:=y1;
+  StringGrid1.Row:=StringGrid1.Row-1;
+end;
+
+procedure TForm6.Button5Click(Sender: TObject);
+begin
+  if StringGrid1.Row=StringGrid1.RowCount-1 then exit;
+  y:=StringGrid1.Cells[1,StringGrid1.Row+1];
+  y1:=StringGrid1.Cells[2,StringGrid1.Row+1];
+  StringGrid1.Cells[1,StringGrid1.Row+1]:=StringGrid1.Cells[1,StringGrid1.Row];
+  StringGrid1.Cells[2,StringGrid1.Row+1]:=StringGrid1.Cells[2,StringGrid1.Row];
+  StringGrid1.Cells[1,StringGrid1.Row]:=y;
+  StringGrid1.Cells[2,StringGrid1.Row]:=y1;
+  StringGrid1.Row:=StringGrid1.Row+1;
+end;
+
+procedure TForm6.Button6Click(Sender: TObject);
+label a1,a2;
+begin
+if edit3.text='' then
+  begin
+  MessageDlg('Введите название маршрута!',mterror,[mbOk],0);
+  edit3.setfocus;
+  exit;
+  end;
+  s3:='Traks\';
+a2:
+if FindFirst(s3+edit3.Text+'.enr', faAnyFile, SearchRec) =0 then
+  begin
+   if MessageDlg('Маршрут с таким именем существует!'+#13+
+    'Перезаписать его?', mtWarning,[mbyes,mbno],0)<>7
+                then goto a1;
+  edit3.setfocus;
+  exit;
+  end;
+a1:  
+assignfile(f1,s3+edit3.Text+'.enr');
+{$i-}
+rewrite(f1);
+{$i+}
+if IOResult <> 0 then
+  begin
+  s3:='';
+  goto a2;
+  //MessageDlg('Ошибка записи файла!',mtError,[mbOk],0);
+  //exit;
+  end;
+For j:=1 to StringGrid1.RowCount-1 do
+  if (StringGrid1.Cells[1,j]='')or(StringGrid1.Cells[2,j]='') then
+      begin
+      MessageDlg('Ошибка ввода данных!',mterror,[mbOk],0);
+      end
+      else
+      begin
+      if length(StringGrid1.Cells[1,j])=38 then
+        writeln(f1,StringGrid1.Cells[1,j]+' '+StringGrid1.Cells[2,j]);
+      if length(StringGrid1.Cells[1,j])=37 then
+        writeln(f1,StringGrid1.Cells[1,j]+'  '+StringGrid1.Cells[2,j]);
+      if length(StringGrid1.Cells[1,j])=36 then
+        writeln(f1,StringGrid1.Cells[1,j]+'   '+StringGrid1.Cells[2,j]);
+      end;
+closefile(f1);
+MessageDlg('Маршрут записан.',mtInformation,[mbOk],0);
+button7.SetFocus;
+end;
+
+procedure TForm6.Button7Click(Sender: TObject);
+begin
+form6.Close;
+end;
+
+procedure TForm6.Edit3KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+'а'..'я': key:=Chr(ord(key)-32);
+'А'..'Я': ;
+'A'..'Z': ;
+'a'..'z': key:=Chr(ord(key)-32);
+#32 : ; // пробел
+#22 : ; // Ctrl & V  вставить
+#3 : ;  // Ctrl & C  копировать
+'-','+','.',',','_' : ; // -
+#13: Button6Click(Sender);
+else key := Chr(0); // остальные символы запрещены
+end;
+end;
+
+procedure TForm6.Button8Click(Sender: TObject);
+label a1;
+begin
+Form7.showmodal;
+ComboBox1.clear;
+s3:='Traks\Baza.txt';
+a1:
+assignfile(f1,s3);
+ {$i-}
+reset(f1);
+ {$i+}
+if IOResult <> 0 then begin s3:='Baza.txt';goto a1;end;  
+while not eof(f1) do
+  begin
+  readln(f1,s3);
+  ComboBox1.Items.Add(s3);
+  lop:=lop+1;
+  end;
+closefile(f1);
+if lop=0 then begin s3:='Baza.txt';goto a1;end;
+ComboBox1.itemIndex:=-1;
+Label1.Caption:=IntToStr(ComboBox1.Items.Count);
+end;
+
+procedure TForm6.ComboBox1Click(Sender: TObject);
+begin
+edit2.SetFocus;
+end;
+
+procedure TForm6.Button9Click(Sender: TObject);
+begin
+ if OpenDialog1.Execute
+ then
+  begin
+  s1:=OpenDialog1.FileName;
+  end;
+if s1='' then exit;
+edit3.Text:='';
+StringGrid1.RowCount:=1;
+StringGrid1.Row:=0;
+i:=length(s1)-4;
+repeat
+edit3.Text:=s1[i]+edit3.Text;
+i:=i-1;
+until s1[i]='\';
+assignfile(f1,s1);
+ {$i-}
+reset(f1);
+ {$i+}
+if IOResult <> 0 then begin MessageDlg('Ошибка файла!', mtError,[mbOk],0);exit;end;
+kol:=0;
+while not eof(f1) do
+  begin
+  readln(f1,s2);
+  StringGrid1.RowCount:=StringGrid1.RowCount+1;
+  StringGrid1.Cells[1,StringGrid1.RowCount-1]:=s2[1]+s2[2]+s2[3]+s2[4]+s2[5]+
+  s2[6]+s2[7]+s2[8]+s2[9]+s2[10]+s2[11]+s2[12]+s2[13]+s2[14]+s2[15]+s2[16]+
+  s2[17]+s2[18]+s2[19]+s2[20]+s2[21]+s2[22]+s2[23]+s2[24]+s2[25]+s2[26]+
+  s2[27]+s2[28]+s2[29]+s2[30]+s2[31]+s2[32]+s2[33]+s2[34]+s2[35]+s2[36]+
+  s2[37]+s2[38];
+  StringGrid1.Cells[2,StringGrid1.RowCount-1]:=s2[40]+s2[41]+s2[42];
+  StringGrid1.Row:=StringGrid1.Row+1;
+  end;
+closefile(f1);
+end;
+
+end.

@@ -1,0 +1,103 @@
+unit Unit3;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+
+type
+  TForm3 = class(TForm)
+    Label1: TLabel;
+    Edit1: TEdit;
+    Label2: TLabel;
+    Button1: TButton;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    procedure Button1Click(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit2KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit3KeyPress(Sender: TObject; var Key: Char);
+    procedure FormActivate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form3: TForm3;
+
+implementation
+
+uses unit1;
+{$R *.dfm}
+
+procedure TForm3.Button1Click(Sender: TObject);
+begin
+if (length(edit1.text)<1)or(length(edit2.text)<1)or(length(edit3.text)<1) then
+   begin
+   edit1.SetFocus;
+   exit;
+   end;
+if (StrToInt(edit1.text)<0)or(StrToInt(edit1.text)>6000) then
+   begin
+   edit1.SetFocus;
+   exit;
+   end;
+if (StrToInt(edit2.text)<0)or(StrToInt(edit2.text)>359) then
+   begin
+   edit2.SetFocus;
+   exit;
+   end;
+if (StrToInt(edit3.text)<0)or(StrToInt(edit3.text)>300) then
+   begin
+   edit3.SetFocus;
+   exit;
+   end;
+form1.Label4.Caption:='НВ='+edit2.text+' гр. U='+edit3.text+' км/ч.';
+form3.Close;
+end;
+
+procedure TForm3.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+#13: if length(edit1.text)>0 then edit2.SetFocus else edit1.SetFocus;
+else key := Chr(0); // остальные символы запрещены
+end;
+end;
+
+procedure TForm3.Edit2KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+#13: if length(edit2.text)>0 then edit3.SetFocus else edit2.SetFocus;
+else key := Chr(0); // остальные символы запрещены
+end;
+end;
+
+procedure TForm3.Edit3KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+#13: if length(edit3.text)>0 then Button1Click(Sender) else edit1.SetFocus;
+else key := Chr(0); // остальные символы запрещены
+end;
+end;
+
+procedure TForm3.FormActivate(Sender: TObject);
+begin
+edit1.setfocus;
+end;
+
+procedure TForm3.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+nad:=1;
+end;
+
+end.

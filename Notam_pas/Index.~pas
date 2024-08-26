@@ -1,0 +1,450 @@
+unit Index;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, MPlayer, ExtCtrls;
+
+type
+  TForm2 = class(TForm)
+    Label1: TLabel;
+    Edit1: TEdit;
+    Button1: TButton;
+    RadioGroup1: TRadioGroup;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    Label2: TLabel;
+    Edit2: TEdit;
+    Label3: TLabel;
+    Edit3: TEdit;
+    Button5: TButton;
+    Button6: TButton;
+    Button7: TButton;
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Edit3KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit2KeyPress(Sender: TObject; var Key: Char);
+    procedure FormActivate(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure Button1Click(Sender: TObject);
+    procedure RadioGroup1Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form2: TForm2;
+  onoff:integer;
+implementation
+
+uses Notambd;
+
+
+{$R *.dfm}
+//    ЧЕТЫРЕХ-БУКВЕННЫЕ ИНДЕКСЫ И РАСШИФРОВКА
+procedure TForm2.Button1Click(Sender: TObject);
+Label a10,a20,a30,a40;
+Const
+FileName = 'Russia.txt';//Файл с 4-х буквенными индексами
+Var                     //и расшифровкой
+F : TextFile;
+S,S1,S2 : String[40];   //МАКС. ДЛИНА СТРОКИ 40 СИМВОЛОВ
+st : string;
+I : Integer;
+begin
+s1:=Edit1.Text; // Поиск 4-х буквенных индексов
+i:=0; st:='';
+AssignFile(f, FileName);
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then begin
+MessageDlg('Отсутствует файл "Russia.txt"',
+mtError,[mbOk],0); form3.sound(err);exit; end;
+if s1='' then goto a20;
+if RadioGroup1.ItemIndex= 0               // декодирование ИНД-ПУНКТ
+then
+a40:
+while not EOF(f) do begin
+readln(f, s);
+S2:=S;
+delete(s2,5,35);
+delete(s2,length(s1)+1,39-length(s1));
+if s1=s2 then
+   begin
+   //delete(s,1,5);
+   i:=I+1;
+   st:=st+s+#13;
+   goto a40;
+   end;
+  end;
+if i>60 then
+        begin
+        form3.sound(err);
+        ShowMessage('Найдено слишком много совпадений ('+INTTOSTR(I)+
+        ').'+#13+#13+'Введите больше букв для поиска!');
+        goto a10;end;
+if i<>0 then //если найдено - вывод
+  begin
+  form3.sound(OKK);
+  ShowMessage(st);
+  goto a10;
+  end;
+  st:='';i:=0;
+if RadioGroup1.ItemIndex= 1                // кодирование  ПУНКТ-ИНД
+then
+a30:
+while not EOF(f) do begin
+readln(f, s);
+S2:=S;
+delete(s2,1,5);
+delete(s2,length(s1)+1,39-length(s1));
+if s1=s2 then
+   begin
+   i:=I+1;
+   st:=st+s+#13;
+   goto a30;
+   end;
+  end;
+if i>60 then
+        begin
+        form3.sound(err);
+        ShowMessage('Найдено слишком много совпадений ('+INTTOSTR(I)+
+        ').'+#13+#13+'Введите больше букв для поиска!');
+        goto a10;end;
+if i<>0 then //если найдено - вывод
+  begin
+  form3.sound(okk);
+  ShowMessage(st);
+  goto a10;
+  end;
+a20:
+ form3.sound(err);
+ ShowMessage('Ничего не найдено!');
+a10:
+CloseFile(f);         //конец поиска
+edit1.Text:='';
+edit1.SetFocus;
+button1.Enabled:=false;
+end;
+
+procedure TForm2.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+button1.Enabled:=true;
+case Key of
+'а'..'я': key:=Chr(ord(key)-32);//перевод прописн.русск в заглавные
+//#8 : ; // клавиша <Back Space>
+#13 :Form2.Button1Click(Sender);
+//Button1.SetFocus ; // клавиша <Enter>
+// остальные символы — запрещены
+{else Key :=Chr(0);} // символ не отображать
+end;
+end;
+
+procedure TForm2.Button3Click(Sender: TObject);
+VAR
+p:string;
+begin
+form3.sound(OKK);
+p:=InputBox('Доступ ограничен!','Для входа в режим введите пароль:','');
+if p='' then exit;
+if p='6606' then
+  begin
+  Label2.Enabled:=true;
+  Edit2.Enabled:=true;
+  Label3.Enabled:=true;
+  Edit3.Enabled:=true;
+  Button4.Enabled:=true;
+  Edit2.SetFocus;
+  Button3.Caption:='Режим добавления/удаления активирован';
+  Button3.Enabled:=false;
+  edit2.font.Color:=002222;
+  edit3.font.Color:=002222;
+  end
+  else begin
+  form3.sound(err);
+  messageDlg('Неверный пароль!!!',mtError,[mbOk],0);
+  button1.enabled:=false;
+  edit1.Text:='';
+  edit1.SetFocus;
+  end;
+end;
+
+procedure TForm2.FormActivate(Sender: TObject);
+begin
+button1.enabled:=false;
+edit1.Text:='';
+edit1.SetFocus;
+onoff:=0;
+//MediaPlayer2.Play;
+end;
+
+procedure TForm2.Button2Click(Sender: TObject);
+Label a1;
+var
+f1,f2:textfile;
+I:INTEGER;
+s:string[4];
+s1:string[5];
+begin
+if onoff=0 then  //кн запись, если надо добавить пункт
+begin
+s1:=edit2.Text;
+if (length(s1)<4)or(length(s1)>4) then
+   begin
+   form3.sound(err);
+   MessageDlg('Введите правильно индекс!!!',mtwarning,[mbOk],0);
+   edit2.Text:='';
+   edit2.SetFocus;
+   exit;
+   end;
+assignFILE(f1,'Russia.txt');
+{$i-}
+reset(f1);
+{$i+}
+if IOResult <> 0 then begin
+MessageDlg('Отсутствует файл "Russia.txt"',
+mtError,[mbOk],0); form3.sound(err);exit; end;
+while not eof(f1) do
+  begin
+  readln(f1,s);
+  if s=s1 then
+          begin
+          form3.sound(err);
+          MessageDlg('Идекс '+s1+' уже существует!',mtinformation,[mbOk],0);
+          closefile(f1);
+          goto a1;
+          end;
+  end;
+closefile(f1);
+assignFILE(f1,'Russia.txt');
+{$i-}
+append(f1);
+{$i+}
+if IOResult <> 0 then begin
+MessageDlg('Отсутствует файл "Russia.txt"',
+mtError,[mbOk],0); form3.sound(err);exit; end;
+writeln(f1,edit2.text+' '+edit3.text);
+closeFILE(f1);
+form3.sound(okk);
+MessageDlg('Данные:'+#13+s1+'-'+edit3.text+#13+'записаны в файл ',mtinformation,[mbOk],0);
+a1:
+edit2.Text:='';
+edit3.Text:='';
+button2.Enabled:=false;
+button5.Enabled:=false;
+button6.Enabled:=false;
+edit2.SetFocus;
+end;
+if onoff=1 then //кн запись, если редактировали пункт
+  begin
+  form3.sound(okk);
+  showmessage('записали');
+  edit2.Text:='';
+  edit3.Text:='';
+  button2.Enabled:=false;
+  button5.Enabled:=false;
+  button6.Enabled:=false;
+  edit2.SetFocus;
+  end;
+ onoff:=0; 
+end;
+
+procedure TForm2.Edit2KeyPress(Sender: TObject; var Key: Char);
+begin
+Button5.Enabled:=true;
+Button6.Enabled:=true;
+case KEY of
+#8: ;
+#13:Edit3.SetFocus ;
+#32:Key :=Chr(0);
+'А'..'Я': ;
+'а'..'я': key:=Chr(ord(key)-32);//перевод прописн.русск в заглавные
+else key:=Chr(0);
+end;
+end;
+
+procedure TForm2.Edit3KeyPress(Sender: TObject; var Key: Char);
+begin
+button2.Enabled:=true;
+case KEY of
+#13 :Form2.Button2Click(Sender);
+//#13:Button1.SetFocus ;
+'а'..'я': key:=Chr(ord(key)-32);//перевод прописн.русск в заглавные
+end;
+end;
+
+procedure TForm2.Button4Click(Sender: TObject);
+begin
+Edit2.Text:='';
+Edit3.Text:='';
+button2.Enabled:=false;
+button5.Enabled:=false;
+button6.Enabled:=false;
+Edit2.SetFocus;
+end;
+
+procedure TForm2.Button6Click(Sender: TObject);
+Label a1;
+Var
+f1,f2:textfile;
+r:INTEGER;
+s:string[4];
+s1:string[5];
+s2,s3:string[40];
+begin
+s1:=edit2.Text;
+if (length(s1)<4)or(length(s1)>4) then
+   begin
+   form3.sound(err);
+   MessageDlg('Введите правильно индекс!!!',mtwarning,[mbOk],0);
+   button5.Enabled:=false;
+   button6.Enabled:=false;
+   edit2.Text:='';
+   edit2.SetFocus;
+   exit;
+   end;
+assignFILE(f1,'Russia.txt');
+{$i-}
+reset(f1);
+{$i+}
+if IOResult <> 0 then begin
+MessageDlg('Отсутствует файл "Russia.txt"',
+mtError,[mbOk],0); form3.sound(err);exit; end;
+while not eof(f1) do
+  begin
+  readln(f1,s2);
+  s:=s2;s3:=s2;
+  if s=s1 then
+          begin
+          form3.sound(err);
+         r:=MessageDlg('Удалить '+#13+s2+' ?',mtwarning,[mbOk,mbCancel],0);
+          if r=2 then begin closefile(f1);goto a1;end;
+          //если найдено, то удаление!!!
+          CloseFile(f1);
+          //создание файла zzz.txt
+          assignFILE(f1,'Russia.txt');
+          {$i-}
+          reset(f1);
+          {$i+}
+          if IOResult <> 0 then begin
+          MessageDlg('Отсутствует файл "Russia.txt"',
+          mtError,[mbOk],0); form3.sound(err);exit; end;
+          assignFILE(f2,'zzz.txt'); rewrite(f2);
+          while not eof(f1) do
+            begin
+            readln(f1,s2);
+            s:=s2;
+            if s<>s1 then writeln(f2,s2);
+            end;
+          CloseFile(f1);
+          CloseFile(f2);
+          form3.sound(okk);
+          MessageDlg(s3+#13+' успешно удалено!',mtinformation,[mbOk],0);
+          //переписывание из zzz.txt в Russia.txt
+          assignFILE(f1,'Russia.txt');
+          {$i-}
+          rewrite(f1);
+          {$i+}
+          if IOResult <> 0 then begin
+          MessageDlg('Отсутствует файл "Russia.txt"',
+          mtError,[mbOk],0); form3.sound(err);exit; end;
+          assignFILE(f2,'zzz.txt'); reset(f2);
+          while not eof(f2) do
+            begin
+            readln(f2,s2);
+            writeln(f1,s2);
+            end;
+          CloseFile(f1);
+          CloseFile(f2);
+          erase(f2);
+          GoTo a1;
+          end;
+  end;
+CloseFile(f1);
+form3.sound(err);
+ShowMessage('Индекс '+s1+' не найден!');
+a1:
+Edit2.Text:='';
+Edit3.Text:='';
+Edit2.setfocus;
+button2.Enabled:=false;
+button5.Enabled:=false;
+button6.Enabled:=false;
+end;
+         // Butt5 не задействована!!!
+procedure TForm2.Button5Click(Sender: TObject);
+label a1;
+Var
+f1,f2:textfile;
+r,I:INTEGER;
+s:string[4];
+s1:string[5];
+s2,s3:string[40];
+begin
+onoff:=1;
+s1:=edit2.Text;
+if (length(s1)<4)or(length(s1)>4) then
+   begin
+   form3.sound(err);
+   MessageDlg('Введите правильно индекс!!!',mtwarning,[mbOk],0);
+   button5.Enabled:=false;
+   button6.Enabled:=false;
+   edit2.Text:='';
+   edit2.SetFocus;
+   exit;
+   end;
+assignFILE(f1,'Russia.txt');
+{$i-}
+reset(f1);
+{$i+}
+if IOResult <> 0 then begin
+MessageDlg('Отсутствует файл "Russia.txt"',
+mtError,[mbOk],0); form3.sound(err);exit; end;
+
+while not eof(f1) do
+  begin
+  readln(f1,s2);
+  s:=s2;//s3:=s2;
+  if s=s1 then       //s1 ввели  s, s2 считали
+          begin
+          edit3.Text:=s2;
+          edit2.setfocus;
+          button2.enabled:=true;
+          button5.enabled:=false;
+          button6.enabled:=false;
+
+          CloseFile(f1);
+          goto a1;
+          end;
+  end;
+CloseFile(f1);
+form3.sound(err);
+ShowMessage('Индекс '+s1+' не найден!');
+
+button5.Enabled:=false;
+button6.Enabled:=false;
+edit2.Text:='';
+edit2.SetFocus;
+a1:
+end;
+
+procedure TForm2.RadioGroup1Click(Sender: TObject);
+begin
+EDIT1.SetFocus;
+end;
+
+procedure TForm2.Button7Click(Sender: TObject);
+begin
+ form2.close;
+end;
+
+end.

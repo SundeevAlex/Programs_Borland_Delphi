@@ -1,0 +1,223 @@
+unit bd_podpech;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, StdCtrls;
+
+type
+  TForm9 = class(TForm)
+    StringGrid1: TStringGrid;
+    GroupBox1: TGroupBox;
+    ComboBox1: TComboBox;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    CheckBox1: TCheckBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit4: TEdit;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    procedure FormActivate(Sender: TObject);
+    procedure pech;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form9: TForm9;
+
+implementation
+
+{$R *.dfm}
+uses Printers,notambd, Sv_tabl;
+var
+F:textfile;
+sDos:string;
+i5,j5,i,j:integer;
+dpix, dpiY : integer; // разрешение принтера по X и У
+kx,ky,LEFT_MARGIN,TOP_MARGIN: real; // коэф. пересчета координат экрана
+// в координаты принтера по X и У
+// таблица
+p: array[0..3] of integer; // позиции колонок
+x1,y1,x2,y2: integer; // границы таблицы
+px,py: integer; // указатель точки вывода
+
+procedure tform9.pech;
+begin
+LEFT_MARGIN:=0.3{strtofloat(edit4.text)};
+TOP_MARGIN:=0;
+{if kol=6 then
+TOP_MARGIN:=strtofloat(edit2.text)
+         else
+TOP_MARGIN:=0;  }
+{------------------------------ сама печать --------------------------------}
+dpiX := GetDeviceCaps(Printer.handle,LOGPIXELSX);
+dpiY := GetDeviceCaps(Printer.handle,LOGPIXELSY);
+kx:=dpiX/96;
+ky:=dpiY/96;
+px := Round(LEFT_MARGIN / 2.54 * dpiX);
+py := Round(TOP_MARGIN / 2.54 * dpiY);
+p[0] := px;
+for i:=1 to 3 do
+begin
+p[i]:=p[i-1] + Round(StringGrid1.ColWidths[i-1]* kx) ;
+end;
+with Printer do
+begin
+//i:=messagedlg('ВСТАВЬТЕ БУМАГУ.',mtwarning,[mbOk],0);
+BeginDoc;
+Canvas.Font.Name:=combobox1.text;
+i:=strtoint(edit3.text);
+Canvas.Font.Size:=i;
+if checkbox1.checked=true then Canvas.Font.Style:=[fsBold]
+                          else Canvas.Font.Style:=[];
+
+py := py+ Round(Edit1.Font.Size * 2 * ky) ;x1 := px; y1 := py; // левый верхний угол таблицы
+x2 := p[3] + Round(StringGrid1.ColWidths[3]* kx);
+y2 := py +
+Round(StringGrid1.RowCount *
+StringGrid1.RowHeights[1] * ky);
+for j:=0 to StringGrid1.RowCount do
+begin
+for i:=0 to StringGrid1.ColCount do
+begin
+Canvas.TextOut(P[i],py,StringGrid1.Cells[i,j]);
+end;
+py:=py+ Round(StringGrid1.RowHeights[j]* ky);
+end;
+EndDoc;
+end;
+end;
+
+procedure TForm9.FormActivate(Sender: TObject);
+Label a1,a2;
+var
+i8,j8: integer;
+aero:string[16];
+begin
+assignfile(f,'Shrift/Shrift.txt');   // считывание шрифтов
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  'Shrift/Shrift.txt'+#13+'(файл с наименованиями шрифтов)'+#13+
+  'Пример:'+#13+
+  '1'+#13+
+  'Courier New'+#13+
+  'Arial',mtError,[mbOk],0);
+  exit;
+  end;
+  s:='';
+readln(f,s);
+ComboBox1.clear;
+while not eof(f) do
+  begin
+  readln(f,sDos);
+  ComboBox1.Items.Add(sDos);
+  end;
+closefile(f);
+ComboBox1.itemindex:=strtoint(s);
+
+assignfile(f,'Shrift/Other.txt');   // считывание размера шрифтов
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  'Shrift/Other.txt'+#13+'(файл с размером шрифта,'+#13+
+  'отступом сверху и слева)'+#13+
+  'Пример:'+#13+
+  '12'+#13+
+  '1'+#13+
+  '0,5'+#13+
+  '0,3',mtError,[mbOk],0);
+  exit;
+  end;
+readln(f,sDos);
+edit3.Text:=sDos;
+readln(f,sDos);
+i:=strtoint(sDos);
+if i=1 then checkbox1.checked:=true else checkbox1.checked:=false;
+readln(f,sDos);
+edit2.Text:=sDos;
+readln(f,sDos);
+edit4.Text:=sDos;
+closefile(f);
+i8:=0;
+
+A2:
+for i5:=0 to 63 do
+  for j8:=0 to 3 do StringGrid1.Cells[j8,i5]:='';
+j5:=0;
+//I5:=MessageDlg('НАПЕЧАТАТЬ ШАПКУ ?',mtCONFIRMATION,[mbYES,MBNO],0);
+I5:=KOL;
+IF i5<>6 then goto a1;
+
+with StringGrid1 do
+begin
+Cells[0,0]:='Стр. N';
+Cells[0,1]:='================';
+Cells[1,1]:='====================================================';
+Cells[2,1]:='========';
+Cells[0,2]:='АЭРОДРОМ (ПУНКТ)';
+Cells[1,2]:='             СОДЕРЖАНИЕ     НОТАМА';
+Cells[2,2]:=' НОМЕР';
+Cells[0,3]:='================';
+Cells[1,3]:='====================================================';
+Cells[2,3]:='========';
+end;
+j5:=4;
+a1:
+if i8=0 then
+  begin
+  j5:=5;
+  if i5<>6 then j5:=0;
+  aero:=form3.edit1.text;
+  StringGrid1.Cells[0,j5]:=aero;                                   // аэродром
+  StringGrid1.Cells[2,j5]:=form3.edit2.text+'/'+form3.edit3.text;  //номер
+  StringGrid1.Cells[1,j5]:='ОТ:'+form3.edit6.text[5]+form3.edit6.text[6]+
+  form3.edit6.text[3]+form3.edit6.text[4]+form3.edit6.text[1]+form3.edit6.text[2]+' '+
+  form3.edit7.text;
+  if (form3.edit9.text='')or(form3.edit9.text[1]=' ') then
+     StringGrid1.Cells[1,j5]:=StringGrid1.Cells[1,j5]+' ДО:'+form3.edit8.text
+     else
+     StringGrid1.Cells[1,j5]:=StringGrid1.Cells[1,j5]+' ДО:'+form3.edit8.text[5]+
+     form3.edit8.text[6]+form3.edit8.text[3]+form3.edit8.text[4]+form3.edit8.text[1]+
+     form3.edit8.text[2]+' '+form3.edit9.text+' '+form3.edit10.text;
+  end;
+
+j5:=j5+1;
+for i5:=i8 to form3.Memo1.Lines.Count-1 do
+   begin
+   StringGrid1.Cells[1,j5]:=form3.Memo1.Lines[i5];
+   j5:=j5+1;
+   if j5=64 then
+     begin
+     i8:=i5+1;
+     pech;
+     form3.sound(okk);
+     KOL:=MessageDlg('ВСТАВЬТЕ ЛИСТ.',mtCONFIRMATION,[mbOk,MBCANCEL],0);
+     IF KOL=1 THEN
+          BEGIN
+          form3.sound(okk);
+          KOL:=MessageDlg('НАПЕЧАТАТЬ ШАПКУ ?',mtCONFIRMATION,[mbYES,MBNO],0);
+          goto a2;
+          END ELSE EXIT;
+     end;
+   end;
+   pech;
+end;
+
+end.

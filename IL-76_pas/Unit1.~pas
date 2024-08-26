@@ -1,0 +1,914 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Menus, Printers;
+
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    MainMenu1: TMainMenu;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    N5: TMenuItem;
+    OpenDialog1: TOpenDialog;
+    ComboBox1: TComboBox;
+    Label1: TLabel;
+    Edit1: TEdit;
+    Label2: TLabel;
+    Button1: TButton;
+    Button2: TButton;
+    N6: TMenuItem;
+    N7: TMenuItem;
+    N8: TMenuItem;
+    Button3: TButton;
+    Button4: TButton;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Edit2: TEdit;
+    procedure N2Click(Sender: TObject);
+    Procedure RASSCHET;
+    Procedure ZAP;   { расчет запасного аэродрома }
+    procedure FormActivate(Sender: TObject);
+    procedure ComboBox1Select(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBox1KeyPress(Sender: TObject; var Key: Char);
+    procedure Button2Click(Sender: TObject);
+    procedure N8Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Edit2KeyPress(Sender: TObject; var Key: Char);
+    procedure N3Click(Sender: TObject);
+    procedure N5Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+  nad : integer;
+i,kol,So,H,Tn,Ts, UB, Usr,Usr30,ss1,ss2, sxo, Tob, To1, To2, To3, Sza,j,
+Tza,Tza1, PUzap,HB1, Vza, Mvz,Mkom, Wh, clik : integer;
+x, a, min, gr, dAZ, iii, b, c, d, e, f, g, fuel1,fuel2, Qsht,Q50,Q30,t30,dQ,
+Qpol, Qras, sT, sQ, Qg, Fhzap, Lhzap, Q9, c1 : real;
+Fh, Lh, T1, Z, Q1, Qdown : array[1..100] of real; { широта, долгота, T пол. по уч. в мин }
+S, MPU, OPU, dM, Vi, HB, U, Ue, W, TTT, T, TT, Tnar : array[1..100] of integer;
+PPM : array[1..100] of string[14];
+KOR : array[1..100] of string[20];
+F1, F2 : TEXTFILE;
+s2,s1, sxo1, sxos,ZAad,s3,y,y1 : string;
+V : string[7];
+{*********************************************************************}
+{*  при удалении какого-либо пункта из БД, прога должна просмотреть  *}
+{*  все маршруты и проверить есть ли этот пункт в них, и сообщить    *}
+{*  об этом. тоже самое при редактировании пункта в БД, должна       *}
+{*  предложить заменить его во всех маршрутах где он встречается     *}
+{*********************************************************************}
+implementation
+
+uses Unit2, Unit3, About, Unit5, Unit6, Unit7, Info;
+
+{$R *.dfm}
+
+FUNCTION ArcSin1(x:real):real;        { А Р К С И Н У С     }
+begin
+x:=ArcTan(x/sqrt(1-sqr(x)))*180/PI;ArcSin1:=x;
+end;
+FUNCTION ArcCos1(x:real):real;        { А Р К К О С И Н У С }
+begin
+x:=ArcTan(sqrt(1-sqr(x))/x)*180/PI;ArcCos1:=x;
+end;
+FUNCTION ArcTan1(x:real):real;        { А Р К Т А Н Г Е Н С }
+begin
+x:=(ArcTan(x))*180/PI;ArcTan1:=x;
+end;
+FUNCTION Sin1(x:real):real;           { С И Н У С           }
+begin
+x:=sin(x*PI/180);Sin1:=x;
+end;
+FUNCTION Cos1(x:real):real;           { К О С И Н У С       }
+begin
+x:=cos(x*PI/180);Cos1:=x;
+end;
+FUNCTION Tan1(x:real):real;           { Т А Н Г Е Н С       }
+begin
+x:=(sin1(x)/cos1(x));Tan1:=x;
+end;
+FUNCTION Perev(x:real):real;          { П Е Р Е В О Д    В    СФЕРИЧЕСКИЕ }
+begin
+x:=sin1(a*2)*((39/60+8)/60);
+x:=a-x;
+Perev:=x;
+end;
+
+FUNCTION Lead1(s:string):string;       { В Ы Р А В Н И В А Н И Е   Д Л И Н Ы  }
+var st:string; i_st:integer;
+begin
+st:=s;
+for i_st:=length(st) to 2 do st:=' '+st;
+Lead1:=st;
+end;
+
+FUNCTION Lead(s:string):string;       { В Ы Р А В Н И В А Н И Е   Д Л И Н Ы  }
+var st:string; i_st:integer;          { расстояний }
+begin
+st:=s;
+for i_st:=length(st) to 3 do st:=' '+st;
+Lead:=st;
+end;
+
+FUNCTION LeadH(s:string):string;       { В Ы Р А В Н И В А Н И Е   Д Л И Н Ы  }
+var st:string; i_st:integer;          { высоты полета }
+begin
+st:=s;
+for i_st:=length(st) to 4 do st:=' '+st;
+LeadH:=st;
+end;
+
+FUNCTION LeadM(s:string):string;      { В Ы Р А В Н И В А Н И Е   Д Л И Н Ы  }
+var st:string; i_st:integer;          { курсы }
+begin
+st:=s;
+for i_st:=length(st) to 2 do st:='0'+st;
+LeadM:=st;
+end;
+
+FUNCTION LeadT(s:string):string;      { В Ы Р А В Н И В А Н И Е   Д Л И Н Ы  }
+var st:string;                        { минут }
+begin
+st:=s;
+if length(st)=1 then st:='0'+st;
+LeadT:=st;
+end;
+
+FUNCTION LeadQ(sk:string):string;      { В Ы Р А В Н И В А Н И Е   Д Л И Н Ы  }
+var st:string[4];                        { топливо }
+lwx1:real;
+i_st:integer;
+begin
+{trunc(5.7)}; //Frac(x) - отбрасывание целой части.
+st:=sk;
+if StrToFloat(st)<10 then
+   begin
+   lwx1:=StrToFloat(st);
+   st:=FloatToStrf(lwx1,ffGeneral,2,0);
+   end;
+if StrToFloat(st)=round(StrToFloat(st)) then st:=st+'.0';
+for i_st:=1 to length(st) do if st[i_st]=',' then st[i_st]:='.';
+if (st[2]='.')and(length(st)=3) then st:=' '+st;
+LeadQ:=st;
+end;
+
+Procedure TForm1.ZAP;              { ЗАПАСНОЙ АЭРОДРОМ                         }
+label a1,a2;
+begin
+form1.memo1.clear;
+s3:=form5.combobox1.Text;
+if s3='' then form5.showmodal;
+ZAad:=s3[1]+s3[2]+s3[3]+s3[4]+s3[5]+s3[6]+s3[7]+s3[8]+s3[9]+s3[10]+s3[11]+s3[12]+
+      s3[13]+s3[14];
+if label3.Caption<>ZAad then clik:=0;
+label3.Caption:=ZAad;
+
+s1:=s3[16]+s3[17];                     { широты }
+a:=StrToInt(s1);
+s1:=s3[22]+s3[23];
+b:=(StrToFloat(s1))/60;
+s1:=s3[19]+s3[20];
+a:=a+(StrToFloat(s1)+b)/60;
+if (s3[15]='Ю')or(s3[15]='ю') then a:=-1*a;
+Fhzap:=perev(a);
+
+s1:=s3[26]+s3[27]+s3[28];              { долготы }
+a:=StrToInt(s1);
+s1:=s3[33]+s3[34];
+b:=(StrToFloat(s1))/60;
+s1:=s3[30]+s3[31];
+a:=a+(StrToFloat(s1)+b)/60;
+if (s3[25]='З')or(s3[25]='з') then a:=-1*a;
+Lhzap:=a;
+//           расчет ОПУ до З/А
+i:=kol;
+{*** И П У   н а ч   }
+if (Lh[i]=Lhzap)and(Fh[i]>Fhzap) then begin iii:=180;goto a2;end;
+if (Lh[i]=Lhzap)and(Fh[i]<Fhzap) then begin iii:=0;goto a2;end;
+iii:=Cos1(Fh[i])*Tan1(Fhzap)/Sin1(Lhzap-Lh[i])-Sin1(Fh[i])/Tan1(Lhzap-Lh[i]);
+iii:=ArcTan1(1/iii);
+a2:
+{*** С Р А В Н И В А Н И Е ? ? ?   }
+if ((Lh[i]>0) AND (Lhzap>0)) OR ((Lh[i]<0) AND (Lhzap<0)) then
+    begin
+    if (iii>0)AND(Lhzap>Lh[i]) then goto a1;
+    if (iii<0)AND(Lhzap>Lh[i]) then
+                  begin iii:=iii+180;goto a1;end;
+    if (iii>0)AND(Lhzap<Lh[i]) then
+                  begin iii:=iii+180;goto a1;end;
+    if (iii<0)AND(Lhzap<Lh[i]) then iii:=iii+360;
+    end;
+if ((Lh[i]>0)AND(Lhzap<0))OR((Lh[i]<0)AND(Lhzap>0)) then
+    if (abs(Lh[i])+abs(Lhzap))>100 then
+                  begin
+                  if (iii>0)AND(Lh[i]>0)AND(Lhzap<0) then goto a1;
+                  if (iii>0)AND(Lh[i]<0)AND(Lhzap>0) then
+                                begin iii:=iii+180;goto a1;end;
+                  if (iii<0)AND(Lh[i]>0)AND(Lhzap<0) then
+                                begin iii:=iii+180;goto a1;end;
+                  if (iii<0)AND(Lh[i]<0)AND(Lhzap>0) then
+                                begin iii:=iii+360;goto a1;end;
+                  end;
+if (iii>0)AND(Lh[i]<0)AND(Lhzap>0) then goto a1;
+if (iii>0)AND(Lh[i]>0)AND(Lhzap<0) then
+                  begin iii:=iii+180;goto a1;end;
+if (iii<0)AND(Lh[i]>0)AND(Lhzap<0) then
+                  begin iii:=iii+360;goto a1;end;
+if (iii<0)AND(Lh[i]<0)AND(Lhzap>0) then
+                  begin iii:=iii+180;goto a1;end;
+a1:
+{*** Д А Л Ь Н Е Й Ш И Е      Р А С Ч Е Т Ы:    ОИПУ }
+PUzap:=round(iii);
+if PUzap>359 then PUzap:=PUzap-360;
+if PUzap<0   then PUzap:=PUzap+360;
+
+//           расчет расстояния до З/А
+iii:=Sin1(Fh[kol])*Sin1(Fhzap)+Cos1(Fh[kol])*Cos1(Fhzap)*Cos1(Lhzap-Lh[kol]);
+if clik=0 then
+begin
+Sza:=round(ArcCos1(iii)*PI/180*6372.9);
+// вывод окна редактирования расстояния до З/А
+form3.edit1.Text:=IntToStr(Sza);
+end;
+form3.label3.caption:=ZAad;
+if nad=0 then Form3.showmodal;
+Sza:=StrToInt(form3.edit1.Text);
+end;
+
+Procedure TForm1.RASSCHET;
+label a1,a2,a3,a4,a5,a6;
+begin
+Memo1.Clear;
+dAZ:=0;
+s1:='';
+if (edit1.text='')or(StrToInt(edit1.text)>15000) then
+   begin edit1.setfocus;exit;end;
+if (edit2.text='')or(StrToInt(edit2.text)>40){or(StrToInt(edit2.text)<120)} then
+   begin edit2.setfocus;exit;end;
+for i:=1 to kol-1 do
+begin
+{*** И П У   н а ч   }        { сделать пересечение экватора !!! }
+if (Lh[i]=Lh[i+1])and(Fh[i]>Fh[i+1]) then begin iii:=180;goto a2;end;
+if (Lh[i]=Lh[i+1])and(Fh[i]<Fh[i+1]) then begin iii:=0;goto a2;end;
+iii:=Cos1(Fh[i])*Tan1(Fh[i+1])/Sin1(Lh[i+1]-Lh[i])-Sin1(Fh[i])/Tan1(Lh[i+1]-Lh[i]);
+iii:=ArcTan1(1/iii);
+a2:
+{*** С Р А В Н И В А Н И Е ? ? ?   }
+if ((Lh[i]>0) AND (Lh[i+1]>0)) OR ((Lh[i]<0) AND (Lh[i+1]<0)) then
+    begin
+   // dA:=(Lh[i+1]-Lh[i])*Sin1((Fh[i]+Fh[i+1])/2);
+    if (iii>0)AND(Lh[i+1]>Lh[i]) then goto a1;
+    if (iii<0)AND(Lh[i+1]>Lh[i]) then
+                  begin iii:=iii+180;goto a1;end;
+    if (iii>0)AND(Lh[i+1]<Lh[i]) then
+                  begin iii:=iii+180;goto a1;end;
+    if (iii<0)AND(Lh[i+1]<Lh[i]) then iii:=iii+360;
+    end;
+if ((Lh[i]>0)AND(Lh[i+1]<0))OR((Lh[i]<0)AND(Lh[i+1]>0)) then
+    if (abs(Lh[i])+abs(Lh[i+1]))>100 then
+                  begin
+                  //dA:=(Lh[i+1]-Lh[i]+360)*Sin1((Fh[i]+Fh[i+1])/2);
+                  if (iii>0)AND(Lh[i]>0)AND(Lh[i+1]<0) then goto a1;
+                  if (iii>0)AND(Lh[i]<0)AND(Lh[i+1]>0) then
+                                begin iii:=iii+180;goto a1;end;
+                  if (iii<0)AND(Lh[i]>0)AND(Lh[i+1]<0) then
+                                begin iii:=iii+180;goto a1;end;
+                  if (iii<0)AND(Lh[i]<0)AND(Lh[i+1]>0) then
+                                begin iii:=iii+360;goto a1;end;
+                  end;
+//dA:=(Lh[i+1]-Lh[i])*Sin1((Fh[i]+Fh[i+1])/2);
+if (iii>0)AND(Lh[i]<0)AND(Lh[i+1]>0) then goto a1;
+if (iii>0)AND(Lh[i]>0)AND(Lh[i+1]<0) then
+                  begin iii:=iii+180;goto a1;end;
+if (iii<0)AND(Lh[i]>0)AND(Lh[i+1]<0) then
+                  begin iii:=iii+360;goto a1;end;
+if (iii<0)AND(Lh[i]<0)AND(Lh[i+1]>0) then
+                  begin iii:=iii+180;goto a1;end;
+a1:
+{*** Д А Л Ь Н Е Й Ш И Е      Р А С Ч Е Т Ы:    СХОЖДЕНИЕ МЕР., МПУ, ОИПУ }
+if i>1 then dAZ:=dAZ+(Lh[i]-Lh[i-1])*Sin1((Fh[i]+Fh[i-1])/2);
+MPU[i]:=round(iii)-dM[i];
+if MPU[i]<0 then MPU[i]:=MPU[i]+360;
+OPU[i]:=round(iii-dAZ);
+if OPU[i]>359 then OPU[i]:=OPU[i]-360;
+if OPU[i]<0   then OPU[i]:=OPU[i]+360;
+{*** Р А С Ч Е Т     Р А С С Т О Я Н И Й }
+iii:=Sin1(Fh[i])*Sin1(Fh[i+1])+Cos1(Fh[i])*Cos1(Fh[i+1])*Cos1(Lh[i+1]-Lh[i]);
+iii:=round(ArcCos1(iii)*PI/180*6372.9);
+S[i]:=round(iii);
+end;
+
+So:=0;                          { расчет общего расстояния S общ }
+for i:=1 to kol-1 do So:=So+S[i];
+                                { ввод высоты полета и ветра }
+H:=StrToInt(Edit1.text);
+                                { ввод коммерческой загрузки }
+Mkom:=StrToInt(Edit2.text);
+Mvz:=92+Mkom;
+                                { расчет T наб и Т сниж. }
+Tn:=Round((H/7)/60);
+Ts:=Round((H/10)/60);
+                                { расчет U экв по участкам }
+for i:=1 to kol-1 do
+   BEGIN
+   if HB[i]<180 then UB:=HB[i]+180-MPU[i]-dM[i];
+   if HB[i]>180 then UB:=HB[i]-180-MPU[i]-dM[i];
+   if HB[i]=180 then UB:=HB[i]+180-MPU[i]-dM[i];
+   if UB<0 then UB:=360+UB;
+                                { *** НАБОР *** }
+   if (Vi[i]<720)and((Vi[i])<=(Vi[i+1])) then
+     begin
+     a:=cos((UB*PI/180)); b:=U[i]*0.5*a;
+     c:=U[i]*0.5*U[i]*0.5; d:=2*Vi[i];
+     e:=c/d; f:=sin((UB*PI/180));
+     g:=f*f; Ue[i]:=round(b-e*g);
+     end;
+                                { *** Г. П. *** }
+   if (Vi[i]>719) then
+     begin
+     a:=cos((UB*PI/180)); b:=U[i]*a;
+     c:=U[i]*U[i]; d:=2*Vi[i];
+     e:=c/d; f:=sin((UB*PI/180));
+     g:=f*f; Ue[i]:=round(b-e*g);
+     end;
+                                { *** СНИЖЕНИЕ *** }
+   if (Vi[i]<720)and((Vi[i])<=(Vi[i-1])) then
+     begin
+     a:=cos((UB*PI/180)); b:=U[i]*0.7*a;
+     c:=U[i]*0.7*U[i]*0.7; d:=2*Vi[i];
+     e:=c/d; f:=sin((UB*PI/180));
+     g:=f*f; Ue[i]:=round(b-e*g);
+     end;
+    W[i]:=Vi[i]+Ue[i];           { расчет путевой скорости                     }
+    T1[i]:=S[i]/W[i]*60;         { расчет времени по уч-кам в мин              }
+    TTT[i]:=round(T1[i]);        { расчет времени по уч-кам в мин округленное  }
+ //   if TTT[i]<60 then T[i]:=TTT[i];{ время по уч-кам в мин                     }
+ //   if TTT[i]>59 then
+ //      begin
+       TT[i]:=TTT[i] div 60;       {                                           }
+       T[i]:=TT[i];                { время по уч-кам в час                     }
+       TT[i]:=TTT[i]-TT[i]*60;     { время по уч-кам в мин                     }
+  //     end;
+   END;
+                                   { РАСЧЕТ ЭКВИВАЛЕНТНОГО СРЕДНЕГО ВЕТРА      }
+   a:=0;
+   for i:=1 to kol-1 do
+   begin
+   Z[i]:=Ue[i]*S[i];
+   a:=a+z[i];
+   end;
+   Usr:=round(a/So);
+                                   { РАСЧЕТ ШТИЛЕВОГО ТОПЛИВА                  }
+assignfile(f1,'Q_FUEL.sht'{'Traks\Q_FUEL.sht'});
+ {$i-}
+reset(f1);
+ {$i+}
+if IOResult <> 0 then begin MessageDlg('Ошибка файла!', mtError,[mbOk],0);exit;end;   
+readln(f1,sxo1);readln(f1,sxo1);readln(f1,sxo1);
+i:=1;
+repeat
+if i=1 then begin readln(f1,sxo1);readln(f1,sxos);end;
+if i<>1 then begin sxo1:=sxos;readln(f1,sxos);end;
+ss1:=StrToInt(sxo1[1]+sxo1[2]+sxo1[3]+sxo1[4]);
+ss2:=StrToInt(sxos[1]+sxos[2]+sxos[3]+sxos[4]);
+fuel1:=StrToFloat(sxo1[6]+sxo1[7]+sxo1[8]+sxo1[9]);
+fuel2:=StrToFloat(sxos[6]+sxos[7]+sxos[8]+sxos[9]);
+i:=2;
+until (So>=ss1)and(So<ss2)or(So<ss1)or eof(f1);
+closefile(f1);
+
+{if So>8499 then begin Qsht:=fuel2;goto a3;end;
+if So<ss1 then  Qsht:=fuel1 else
+                Qsht:=fuel1+(((fuel2-fuel1)/(ss2-ss1))*abs(ss1-So)); }
+{if (sxo1[6]<>'0')and(sxo1[7]<>'0')and(sxos[6]<>'0')and(sxos[7]<>'0') then
+  begin
+  fuel1:=StrToFloat(sxo1[6]+sxo1[7]+sxo1[8]+sxo1[9]);
+  fuel2:=StrToFloat(sxos[6]+sxos[7]+sxos[8]+sxos[9]);
+  end;
+if (sxo1[11]<>'0')and(sxo1[12]<>'0')and(sxos[11]<>'0')and(sxos[12]<>'0') then
+  begin
+  fuel1:=StrToFloat(sxo1[11]+sxo1[12]+sxo1[13]+sxo1[14]);
+  fuel2:=StrToFloat(sxos[11]+sxos[12]+sxos[13]+sxos[14]);
+  end; }
+
+j:=5;
+for i:=1 to 10 do
+ begin
+ if (sxo1[i+j]<>'0')and(sxo1[i+j+1]<>'0')and(sxos[i+j]<>'0')and(sxos[i+j+1]<>'0') then
+ begin
+  fuel1:=StrToFloat(sxo1[i+j]+sxo1[i+j+1]+sxo1[i+j+2]+sxo1[i+j+3]);
+  fuel2:=StrToFloat(sxos[i+j]+sxos[i+j+1]+sxos[i+j+2]+sxos[i+j+3]);
+  goto a3;
+ end;
+ j:=j+4;
+ end;
+a3:
+Qsht:=fuel1+(((fuel2-fuel1)/(ss2-ss1))*abs(ss1-So));
+Mvz:=Round(Mvz+Qsht);
+//Wh:=0;
+//a3:
+if (Mvz<191)and(Mvz>184) then begin i:=6; j:=185;end;
+if (Mvz<186)and(Mvz>179) then begin i:=11;j:=180;end;
+if (Mvz<181)and(Mvz>174) then begin i:=16;j:=175;end;
+if (Mvz<176)and(Mvz>169) then begin i:=21;j:=170;end;
+if (Mvz<171)and(Mvz>164) then begin i:=26;j:=165;end;
+if (Mvz<166)and(Mvz>159) then begin i:=31;j:=160;end;
+if (Mvz<161)and(Mvz>154) then begin i:=36;j:=155;end;
+if (Mvz<156)and(Mvz>149) then begin i:=41;j:=150;end;
+if (Mvz<151)and(Mvz>144) then begin i:=46;j:=145;end;
+if (Mvz<146)and(Mvz>139) then begin i:=51;j:=140;end;
+if (Mvz<141)and(Mvz>134) then begin i:=56;j:=135;end;
+if (Mvz<136)and(Mvz>129) then begin i:=61;j:=130;end;
+if (Mvz<131)and(Mvz>124) then begin i:=66;j:=125;end;
+if (Mvz<126)and(Mvz>119) then begin i:=71;j:=120;end;
+if (Mvz<120) then
+    begin
+    i:=71;j:=120;
+    c:=StrToFloat(sxo1[i+5]+sxo1[i+6]+sxo1[i+7]+sxo1[i+8]);
+    d:=StrToFloat(sxos[i+5]+sxos[i+6]+sxos[i+7]+sxos[i+8]);
+    a:=c;b:=d;
+    goto a6;
+    end;
+a:=StrToFloat(sxo1[i]+sxo1[i+1]+sxo1[i+2]+sxo1[i+3]);
+b:=StrToFloat(sxos[i]+sxos[i+1]+sxos[i+2]+sxos[i+3]);
+c:=StrToFloat(sxo1[i+5]+sxo1[i+6]+sxo1[i+7]+sxo1[i+8]);
+d:=StrToFloat(sxos[i+5]+sxos[i+6]+sxos[i+7]+sxos[i+8]);
+a6:
+if (a=0)or(b=0)or(c=0)or(d=0)or(Mvz>190) then
+                              begin
+                              edit2.SetFocus;
+                              exit;
+                              end;
+Qsht:=((a+(((b-a)/(ss2-ss1))*abs(ss1-So)))-(c+(((d-c)/(ss2-ss1))*abs(ss1-So))))
+/5*(Mvz-j)+(c+(((d-c)/(ss2-ss1))*abs(ss1-So)));
+Mvz:=Round(Mvz+Qsht);
+if (Mvz>190) then
+                              begin
+                              edit2.SetFocus;
+                              exit;
+                              end;
+
+//if Wh=0 then begin Wh:=1;goto a3;end;
+
+                                   { СЧИТЫВАНИЕ ПОПРАВКИ НА ВЕТЕР ПО ТОПЛИВУ   }
+assignfile(f1,'Q_F50.sht'{'Traks\Q_F50.sht'});
+ {$i-}
+reset(f1);
+ {$i+}
+if IOResult <> 0 then begin MessageDlg('Ошибка файла!', mtError,[mbOk],0);exit;end;
+readln(f1,sxo1);readln(f1,sxo1);
+i:=1;   
+repeat
+if i=1 then begin readln(f1,sxo1);readln(f1,sxos);end;
+if i<>1 then begin sxo1:=sxos;readln(f1,sxos);end;
+ss1:=StrToInt(sxo1[1]+sxo1[2]+sxo1[3]+sxo1[4]);
+ss2:=StrToInt(sxos[1]+sxos[2]+sxos[3]+sxos[4]);
+if Usr<0 then
+         begin
+         fuel1:=StrToFloat(sxo1[7]+sxo1[8]+sxo1[9]);
+         fuel2:=StrToFloat(sxos[7]+sxos[8]+sxos[9]);
+         end
+         else
+         begin
+         fuel1:=StrToFloat(sxo1[12]+sxo1[13]+sxo1[14]+sxo1[15]);
+         fuel2:=StrToFloat(sxos[12]+sxos[13]+sxos[14]+sxos[15]);
+         end;
+i:=2;
+until (So>=ss1)and(So<ss2)or(So<ss1)or eof(f1);
+closefile(f1);
+if So>8499 then begin Q50:=fuel2;goto a4;end;
+if So<ss1 then  Q50:=fuel1 else
+                Q50:=fuel1+(((fuel2-fuel1)/(ss2-ss1))*abs(ss1-So));
+a4:
+                                   { ЗАПАСНОЙ АЭРОДРОМ   ********************* }
+if nad=0 then begin
+              form5.showmodal;
+              zap;
+              end;
+
+                                   { ПОПРАВКА НА ВЕТЕР ПО ТОПЛИВУ              }
+dQ:=(Usr/50)*Q50;
+                                   { СЧИТЫВАНИЕ ТОПЛИВА ДО ЗАПАСНОГО           }
+assignfile(f1,'Q_ZAP.sht'{'Traks\Q_ZAP.sht'});
+ {$i-}
+reset(f1);
+ {$i+}
+if IOResult <> 0 then begin MessageDlg('Ошибка файла!', mtError,[mbOk],0);exit;end;  
+readln(f1,sxo1);readln(f1,sxo1);
+i:=1;
+repeat
+if i=1 then begin readln(f1,sxo1);readln(f1,sxos);end;
+if i<>1 then begin sxo1:=sxos;readln(f1,sxos);end;
+ss1:=StrToInt(sxo1[1]+sxo1[2]+sxo1[3]+sxo1[4]);
+ss2:=StrToInt(sxos[1]+sxos[2]+sxos[3]+sxos[4]);
+fuel1:=StrToFloat(sxo1[9]+sxo1[10]);
+fuel2:=StrToFloat(sxos[9]+sxos[10]);
+a:=StrToFloat(sxo1[13])*60+StrToFloat(sxo1[15]+sxo1[16]);
+b:=StrToFloat(sxos[13])*60+StrToFloat(sxos[15]+sxos[16]);
+d:=StrToFloat(sxo1[20]+sxo1[21]+sxo1[22]);
+e:=StrToFloat(sxo1[25]+sxo1[26]+sxo1[27]+sxo1[28]);
+f:=StrToFloat(sxos[20]+sxos[21]+sxos[22]);
+g:=StrToFloat(sxos[25]+sxos[26]+sxos[27]+sxos[28]);
+i:=2;
+until (Sza>=ss1)and(Sza<ss2)or(Sza<ss1)or eof(f1);
+closefile(f1);
+if Sza>1499 then begin
+                 Q9:=fuel2;
+                 c1:=b;
+                 T30:=f;
+                 Q30:=g;
+                 goto a5;end;
+if Sza<ss1 then  begin
+                 c1:=a;
+                 Q9:=fuel1;
+                 end
+                 else
+                 begin
+                 Q9:=fuel1+(((fuel2-fuel1)/(ss2-ss1))*abs(ss1-Sza));
+                 c1:=a+(((b-a)/(ss2-ss1))*abs(ss1-Sza));   //время в минутах
+                 T30:=d+(((f-d)/(ss2-ss1))*abs(ss1-Sza));
+                 Q30:=e+(((g-e)/(ss2-ss1))*abs(ss1-Sza));
+                 end;
+a5:
+                                   { РАСЧЕТ U эк НА З/А                        }
+HB1:=StrToInt(form3.Edit2.text);
+if HB1<180 then UB:=HB1+180-PUzap;
+if HB1>180 then UB:=HB1-180-PUzap;
+if HB1=180 then UB:=1+180-PUzap;
+if UB<0    then UB:=360+UB;
+Vza:=round(Sza/(c1/60));            { РАСЧЕТ V ист НА З/А                      }
+a:=cos((UB*PI/180)); b:=StrToInt(form3.Edit3.text)*a;
+c:=StrToInt(form3.Edit3.text)*StrToInt(form3.Edit3.text); d:=2*Vza;
+e:=c/d; f:=sin((UB*PI/180));
+g:=f*f; 
+Usr30:=round(b-e*g);
+
+if Usr30<0 then        { если Uэк на зап а/д встречный -> то учитываем }
+  begin
+  Q30:=(abs(Usr30)/30)*Q30;
+  T30:=(abs(Usr30)/30)*T30;
+  Q9:=Q9+Q30;
+  c1:=c1+T30;
+  end
+  else Q30:=0;
+
+if c1<59 then                       { РАСЧЕТ ВРЕМЕНИ ПОЛЕТА НА З/А              }
+        begin
+        Tza:=0;         {ч.}
+        Tza1:=round(c1); {мин.}
+        end
+        else
+        begin
+        Tza:=round(c1) div 60; {ч.}
+        Tza1:=round(c1)-Tza*60;{мин.}
+        end;
+
+                                   { РАСЧЕТ Q - ПОЛЕТНОЙ, Q - РАСЧЕТНОЙ        }
+Qpol:=Qsht-dQ;
+Qpol:=1.03*Qpol;
+
+Qras:=Qpol+Q9+1+0.6;
+                                   { РАСЧЕТ Q - ПО УЧАСКАМ                     }
+Tob:=0;
+for i:=1 to kol-1 do Q1[i]:=0;
+for i:=1 to kol-1 do Tob:=Tob+TTT[i];
+for i:=1 to 100 do Tnar[i]:=0;
+for i:=1 to kol-1 do
+  begin
+  Tnar[i+1]:=round(Tnar[i]+T1[i]); { РАСЧЕТ ОБЩЕГО ВРЕМЕНИ В МИНУТАХ           }
+
+                                   {                      * * * Н А Б О Р * * *}
+  if (Vi[i]<720)and((Vi[i])<=(Vi[i+1])) then
+     if (Tnar[i]+T1[i])<=(Tn) then Q1[i]:=T1[i]*16/60
+        else Q1[i]:=T1[i]*(((Tn-Tnar[i])*16+(Tnar[i]+T1[i]-Tn)*9)/T1[i])/60;
+                                   {                * * * С Н И Ж Е Н И Е * * *}
+  if (Vi[i]<720)and((Vi[i])<=(Vi[i-1])) then
+     if (Tob-Tnar[i])<=(Ts) then Q1[i]:=T1[i]*3.5/60
+     else Q1[i]:=T1[i]*(((Tob-Tnar[i]-Ts)*8+(T1[i]-(Tob-Tnar[i]-Ts))*3.5)/T1[i])/60;
+  end;
+                                   {                          * * * Г. П. * * *}
+
+  sT:=0; sQ:=0;
+for i:=1 to kol-1 do
+   if Q1[i]<>0 then begin        
+                    sT:=sT+T1[i];  { суммарное время взлета и посадки (в мин.) }
+                    sQ:=sQ+Q1[i];  { суммарное топливо взлета и посадки        }
+                    end;
+Qg:=(Qpol-sQ)/((Tob-sT)/60);       { расчет часового расхода в г.п.            }
+
+for i:=1 to kol-1 do if Q1[i]=0 then Q1[i]:=Qg*T1[i]/60;
+
+for i:=1 to kol do Qdown[i]:=0;    { топливо по участкам возрастающее          }
+Qdown[kol]:=Q9+0.6;
+
+for i:=kol-1 downto 1 do Qdown[i]:=Qdown[i+1]+Q1[i];
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{* * * * * * * * * * * *  В Ы В О Д    Р А С Ч Е Т О В   * * * * * * * * * * * *}
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+
+Memo1.Lines.Add('               Р А Б О Ч И Й    П Л А Н    П О Л Е Т А     No____');
+Memo1.Lines.Add('==============================================================================');
+Memo1.Lines.Add('ПУНКТ  | НВ| U | t | КОМАНДИР ВС...........ШТУРМАН........... |ПУНКТ|ВОСХ|ЗАХ.');
+Memo1.Lines.Add('-------|---|---|---| А/К....................... ДАТА:'+
+FormatDateTime('dd.mm.yy',Now())+'г|-----|----|----');
+V:=PPM[1];
+if Length(edit2.text)=2 then
+Memo1.Lines.Add(V+' '+Lead1(IntToStr(HB[1]))+' '+lead1(IntToStr(U[1]))+
+         '    | Комм. загрузка: '+edit2.text+' т.      Hзад.='+LeadH(edit1.text)+' м |     |    |    ')
+         else
+Memo1.Lines.Add(V+' '+Lead1(IntToStr(HB[1]))+' '+lead1(IntToStr(U[1]))+
+         '    | Комм. загрузка: '+edit2.text+' т.       Hзад.='+LeadH(edit1.text)+' м |     |    |    ');
+for i:=2 to kol-1 do
+   begin
+   V:=PPM[i];
+   if (HB[i-1]<>HB[i]) OR (U[i-1]<>U[i]) then
+   Memo1.Lines.Add(V+' '+Lead1(IntToStr(HB[i]))+' '+Lead1(IntToStr(U[i]))+
+   '    |                                          |     |    |');
+   end;
+Memo1.Lines.Add('==============================================================================');
+Memo1.Lines.Add('   КООРДИНАТЫ ППМ   | МАРШРУТ     |МПУ|ОИПУ|V | W |  S |  T | ТОПЛИВО | ВРЕМЯ');
+Memo1.Lines.Add(' широта  | долгота  |             |нач|взл |и |пут| уч | уч |расч|факт| Р | Ф');
+Memo1.Lines.Add('==============================================================================');
+Memo1.Lines.Add('                     ВЗЛЕТ                              0.03 '+
+LeadQ(FloatToStrf((Qdown[1]+1),ffGeneral,3,0))+' ____|___|___');
+for i:=1 to kol-1 do
+Memo1.Lines.Add(KOR[i]+' '+PPM[i]+LeadM(FloatToStr(MPU[i]))+' '+LeadM(FloatToStr(OPU[i]))+' '+
+  FloatToStr(Vi[i])+' '+FloatToStr(W[i])+' '+Lead(FloatToStr(S[i]))+' '+FloatToStr(T[i])
+  +'.'+LeadT(FloatToStr(TT[i]))+' '+LeadQ(FloatToStrf(Qdown[i],ffGeneral,3,0))+
+  ' ____|___|___');
+
+
+Memo1.Lines.Add(KOR[i]+' '+PPM[i]+'                     0.06 '+LeadQ(FloatToStrf((Qdown[i]),ffGeneral,3,0))
++' ____|___|___');
+
+Memo1.Lines.Add('                     ПОСАДКА                                 '+
+LeadQ(FloatToStrf((Qdown[i]-0.1),ffGeneral,3,0))+
+' ____|___|___');
+Tob:=Tob+9;
+if Tob<60 then
+Memo1.Lines.Add('Всего по маршруту:                                 '+
+Lead(IntToStr(So))+
+' 0.'+LeadT(FloatToStr(Tob))+' '+LeadQ(FloatToStrf((Qdown[1]+1),ffGeneral,3,0)));
+if Tob>59 then
+   begin
+   To1:=Tob div 60;
+   To2:=Tob-To1*60;
+   To3:=To1;
+   Memo1.Lines.Add('Всего по маршруту:                                 '+
+   Lead(IntToStr(So))+
+   ' '+IntToStr(To3)+'.'+LeadT(IntToStr(To2))+' '+
+   LeadQ(FloatToStrf((Qdown[1]+1),ffGeneral,3,0)));
+   end;
+Memo1.Lines.Add('------------------------------------------------------------------------------');
+Memo1.Lines.Add('Уход на зап. а/д: '+ZAad+' S='+IntToStr(Sza)+'км. T='+
+LeadT(IntToStr(Tza))+'.'+LeadT(IntToStr(Tza1))
++' Q='+LeadQ(FloatToStrf((Q9),ffGeneral,3,0))+'т. НВ='+form3.Edit2.text+'гр. U='+form3.Edit3.text+
+'км/ч');
+Memo1.Lines.Add('------------------------------------------------------------------------------');
+Memo1.Lines.Add('Фактическое время полета:  .....час.....мин (общее),  .....час.....мин (ночью)');
+Memo1.Lines.Add('==============================================================================');
+Memo1.Lines.Add('КВС.................... ШТУРМАН....................');
+memo1.SetFocus;
+//Memo1.SelStart:= 0;
+//Memo1.SelLength:= 0;
+end;
+
+procedure TForm1.N2Click(Sender: TObject); { считывание из файла маршрута }
+begin
+ if OpenDialog1.Execute
+ then
+  begin
+  s1:=OpenDialog1.FileName;
+  end;
+if s1='' then exit;
+clik:=0;
+edit1.Text:='';
+edit2.Text:='';
+label3.Caption:='';
+nad:=0;
+Memo1.Clear;
+//s1:='Traks\БРН-МИРНЫЙ.txt'{'Traks\Брн-Дмд(Центром).txt'}{'Traks\03БРН-БРАТСК.txt'};
+assignfile(f1,s1);
+ {$i-}
+reset(f1);
+ {$i+}
+if IOResult <> 0 then begin MessageDlg('Ошибка файла!', mtError,[mbOk],0);exit;end;
+kol:=0;
+while not eof(f1) do
+  begin
+  readln(f1,s2);
+  kol:=kol+1;
+  PPM[kol]:=s2;
+  KOR[kol]:=s2[15]+s2[16]+s2[17]+s2[18]+s2[19]+s2[20]+s2[21]+s2[22]+s2[23]+
+            s2[24]+s2[25]+s2[26]+s2[27]+s2[28]+s2[29]+s2[30]+s2[31]+s2[32]+
+            s2[33]+s2[34];
+
+  s1:=s2[16]+s2[17];                     { считывание и перевод широты }
+  a:=StrToInt(s1);
+  s1:=s2[22]+s2[23];
+  b:=(StrToFloat(s1))/60;
+  s1:=s2[19]+s2[20];
+  a:=a+(StrToFloat(s1)+b)/60;
+  if (s2[15]='Ю')or(s2[15]='ю') then a:=-1*a;
+  Fh[kol]:=perev(a);
+
+  s1:=s2[26]+s2[27]+s2[28];              { считывание и перевод долготы }
+  a:=StrToInt(s1);
+//  s1:=s2[29]+s2[30]+','+s2[32];
+  s1:=s2[33]+s2[34];
+  b:=(StrToFloat(s1))/60;
+  s1:=s2[30]+s2[31];
+  a:=a+(StrToFloat(s1)+b)/60;
+  if (s2[25]='З')or(s2[25]='з') then a:=-1*a;
+  Lh[kol]:=a;
+
+  i:=36;s1:='';                          { считывание и перевод маг. склонения }
+  repeat
+  s1:=s1+s2[i];
+  i:=i+1;
+  until s2[i]=' ';
+  dM[kol]:=StrToInt(s1);
+
+  s1:=s2[40]+s2[41]+s2[42];              { считывание и истинной скорости }
+  Vi[kol]:=StrToInt(s1);
+
+  {Memo1.Lines.Add(PPM[kol]+FloatToStr(Fh[kol])+' '+FloatToStr(Lh[kol])+' '+
+  FloatToStr(dM[kol])+' '+FloatToStr(Vi[kol]));  }
+  end;
+closefile(f1);
+
+ComboBox1.clear;
+for i:=1 to kol-1 do ComboBox1.Items.Add(PPM[i]+'0 0');
+ComboBox1.itemIndex:=0;
+for i:=1 to kol-1 do HB[i]:=0;//250;//StrToInt(form2.Edit2.text);
+for i:=1 to kol-1 do U[i]:=0;//80;//StrToInt(form2.Edit3.text);
+if kol=0 then
+  begin
+  button2.Enabled:=false;
+  button3.Enabled:=false;
+  button4.Enabled:=false;
+  end
+  else
+  begin
+  button2.Enabled:=true;
+  button3.Enabled:=true;
+  button4.Enabled:=true;
+  end;
+RASSCHET;
+end;
+
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+clik:=0;
+nad:=0;
+ComboBox1.clear;
+edit1.SetFocus;
+if kol=0 then
+  begin
+  button2.Enabled:=false;
+  button3.Enabled:=false;
+  button4.Enabled:=false;
+  end
+  else
+  begin
+  button2.Enabled:=true;
+  button3.Enabled:=true;
+  button4.Enabled:=true;
+  end;
+//N2Click(Sender);
+end;
+
+procedure TForm1.ComboBox1Select(Sender: TObject);
+begin
+i:=ComboBox1.Items.Count;
+if ComboBox1.Items.Count<1 then exit;
+Form2.showmodal;
+//ComboBox1.clear;
+for i:=ComboBox1.itemIndex to kol-2 do
+   begin
+   HB[i+1]:=StrToInt(form2.Edit1.text);
+   U[i+1]:=StrToInt(form2.Edit2.text);
+   ComboBox1.Items[i]:=PPM[i+1]+form2.Edit1.text+' '+form2.Edit2.text;
+   end;
+ComboBox1.itemIndex:=0;
+RASSCHET;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+form1.Close;
+end;
+
+procedure TForm1.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+#13: edit2.SetFocus;
+else key := Chr(0); // остальные символы запрещены
+end;
+end;
+
+procedure TForm1.ComboBox1KeyPress(Sender: TObject; var Key: Char);
+begin
+ComboBox1Select(Sender);
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+var
+ ppx,ppy,ppi:longint; 
+begin
+if memo1.Text='' then exit;
+button2.enabled:=false;
+                               // П Е Ч А Т Ь графический режиим
+ {if FontDialog1.Execute=true then
+   begin
+    Printer.Canvas.Font.Name:=fontdialog1.font.name;
+    Printer.Canvas.Font.Size:=fontdialog1.font.size;
+   end
+   else begin button2.enabled:=true;exit;end;}
+
+   begin
+   Printer.Canvas.Font.Name:='Courier New';
+   Printer.Canvas.Font.Size:=12;
+   Printer.BeginDoc;
+   ppx:=5; ppy:=5;
+   for ppi:=1 to Memo1.Lines.Count{-2} do
+     begin
+     Printer.Canvas.TextOut(ppx,ppy,Memo1.Lines[ppi-1]);
+     ppy:=ppy+Printer.Canvas.TextExtent(Memo1.Lines[ppi-1]).cy;  // -1 не должно быть
+     if (ppi mod 55=0)and(ppi<>0)and(ppi<>Memo1.Lines.Count{-2}) then
+        begin
+        Printer.EndDoc;
+       //MessageDlg('Вставьте новый лист.', mtinformation,[mbOk],0);
+        Printer.BeginDoc;
+        ppy:=5;
+        end;
+     end;
+   Printer.EndDoc;
+   end;
+button2.enabled:=true;
+memo1.SetFocus;
+end;
+
+procedure TForm1.N8Click(Sender: TObject);
+begin
+Form4.Top :=
+Trunc(Form1.Top + Form1.Height/2 - Form4.Height/2);
+Form4.Left :=Trunc (Form1.Left +Form1 .Width/2
+- Form4. Width/2 ); Form4.ShowModal;
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+Form3.showmodal;
+zap;
+RASSCHET;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+form5.showmodal;
+end;
+
+procedure TForm1.Edit2KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+#8,'0'..'9' : ; // цифры и клавиша <Backspace>
+#13: combobox1.SetFocus;
+else key := Chr(0); // остальные символы запрещены
+end;
+
+end;
+
+procedure TForm1.N3Click(Sender: TObject);
+begin
+Form6.showmodal;
+end;
+
+procedure TForm1.N5Click(Sender: TObject);
+begin
+Form7.showmodal;
+end;
+
+procedure TForm1.N7Click(Sender: TObject);
+begin
+Form8.showmodal;
+end;
+
+end.

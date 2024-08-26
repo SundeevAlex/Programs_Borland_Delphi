@@ -1,0 +1,208 @@
+unit N_podpech;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls;
+
+type
+  TForm6 = class(TForm)
+    Memo1: TMemo;
+    Label1: TLabel;
+    Button1: TButton;
+    procedure FormActivate(Sender: TObject);
+    procedure poisk;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form6: TForm6;
+ SearchRec: TSearchRec;
+   schet:integer;
+implementation
+
+{$R *.dfm}
+uses Index, Notambd, Bpi,unit1;
+
+procedure tForm6.poisk;
+label a1,a2,a3,a4;
+begin
+  assignfile(f,put+SearchRec.Name); //открыли нотам
+  reset(f);
+  readln(f,Num);                  
+  readln(f,ad);
+  readln(f,s);//пропускаем поле Щ
+  readln(f,s);
+  delete(s,1,2);// поле А
+  if ind='ВСЕ' then s:='ВСЕ';
+  if s=ind then
+      begin
+      readln(f,s);
+      delete(s,1,2);// поле Б
+      P_B:=s[5]+s[6]+s[3]+s[4]+s[1]+s[2];
+        s:=FormatDateTime('dd.mm.yyyy',Now());
+        i:=StrToInt(P_B[5]+P_B[6]);
+        dd:=StrToInt(s[1]+s[2]);mm:=StrToInt(s[4]+s[5]);yy:=StrToInt(s[9]+s[10]);
+        j:=StrToInt(P_B[3]+P_B[4]);
+        k:=StrToInt(P_B[1]+P_B[2]);
+        IF (i=yy)and(j=mm)and(k=dd+1) then goto a3; // если с завтра действует
+        IF (i=yy)and(mm=1)and(dd=31)and(j=2)and(k=1) then goto a3; // ЯНВ
+        IF (i=yy)and(mm=2)and(YY/4=YY DIV 4) THEN
+            IF (dd=29)and(j=3)and(k=1) then goto a3;//ФЕВ
+        IF (i=yy)and(mm=2)and(YY/4<>YY DIV 4) THEN
+            IF (dd=28)and(j=3)and(k=1) then goto a3;//ФЕВ
+        //IF (i=yy)and(mm=2)and((dd=28)or(dd=29))and(j=3)and(k=1) then goto a3;//ФЕВ
+        IF (i=yy)and(mm=3)and(dd=31)and(j=4)and(k=1) then goto a3;  // МАРТ
+        IF (i=yy)and(mm=4)and(dd=30)and(j=5)and(k=1) then goto a3;  // АПР
+        IF (i=yy)and(mm=5)and(dd=31)and(j=6)and(k=1) then goto a3;  // МАЙ
+        IF (i=yy)and(mm=6)and(dd=30)and(j=7)and(k=1) then goto a3;  // ИЮН
+        IF (i=yy)and(mm=7)and(dd=31)and(j=8)and(k=1) then goto a3;  // ИЮЛ
+        IF (i=yy)and(mm=8)and(dd=31)and(j=9)and(k=1) then goto a3;  // АВГ
+        IF (i=yy)and(mm=9)and(dd=30)and(j=10)and(k=1) then goto a3; // СЕН
+        IF (i=yy)and(mm=10)and(dd=31)and(j=11)and(k=1) then goto a3;// ОКТ
+        IF (i=yy)and(mm=11)and(dd=30)and(j=12)and(k=1) then goto a3;// НОЯ
+        IF (i=yy+1)and(mm=12)and(dd=31)and(j=1)and(k=1) then goto a3// ДЕК
+                             else goto a1;
+                                              // конец даты
+a3:    delete(SearchRec.Name,9,4);SearchRec.Name[6]:='/';
+       Memo1.Lines.Add(SearchRec.Name+' - '+ad);
+       schet:=schet+1;
+     end; // конец если индексы совпадают
+a1:CloseFile(f);
+  while (FindNext(SearchRec) = 0) do
+      begin
+  assignfile(f,put+SearchRec.Name); //открыли нотам
+  reset(f);
+  readln(f,Num);
+  readln(f,ad);
+  readln(f,s);//пропускаем поле Щ
+  readln(f,s);
+  delete(s,1,2);// поле А
+  if ind='ВСЕ' then s:='ВСЕ';
+  if s=ind then
+      begin
+      readln(f,s);
+      delete(s,1,2);// поле Б
+      P_B:=s[5]+s[6]+s[3]+s[4]+s[1]+s[2];
+        s:=FormatDateTime('dd.mm.yyyy',Now());
+        i:=StrToInt(P_B[5]+P_B[6]);
+        dd:=StrToInt(s[1]+s[2]);mm:=StrToInt(s[4]+s[5]);yy:=StrToInt(s[9]+s[10]);
+        j:=StrToInt(P_B[3]+P_B[4]);
+        k:=StrToInt(P_B[1]+P_B[2]);  // если месяц равен,то сверяем числа
+        IF (i=yy)and(j=mm)and(k=dd+1) then goto a4; // если с завтра действует
+        IF (i=yy)and(mm=1)and(dd=31)and(j=2)and(k=1) then goto a4;
+        IF (i=yy)and(mm=2)and(YY/4=YY DIV 4) THEN
+            IF (dd=29)and(j=3)and(k=1) then goto a4;//ФЕВ
+        IF (i=yy)and(mm=2)and(YY/4<>YY DIV 4) THEN
+            IF (dd=28)and(j=3)and(k=1) then goto a4;//ФЕВ
+
+        //IF (i=yy)and(mm=2)and((dd=28)or(dd=29))and(j=3)and(k=1) then goto a4;//ФЕВ
+        IF (i=yy)and(mm=3)and(dd=31)and(j=4)and(k=1) then goto a4;  // МАРТ
+        IF (i=yy)and(mm=4)and(dd=30)and(j=5)and(k=1) then goto a4;  // АПР
+        IF (i=yy)and(mm=5)and(dd=31)and(j=6)and(k=1) then goto a4;  // МАЙ
+        IF (i=yy)and(mm=6)and(dd=30)and(j=7)and(k=1) then goto a4;  // ИЮН
+        IF (i=yy)and(mm=7)and(dd=31)and(j=8)and(k=1) then goto a4;  // ИЮЛ
+        IF (i=yy)and(mm=8)and(dd=31)and(j=9)and(k=1) then goto a4;  // АВГ
+        IF (i=yy)and(mm=9)and(dd=30)and(j=10)and(k=1) then goto a4; // СЕН
+        IF (i=yy)and(mm=10)and(dd=31)and(j=11)and(k=1) then goto a4;// ОКТ
+        IF (i=yy)and(mm=11)and(dd=30)and(j=12)and(k=1) then goto a4;// НОЯ
+        IF (i=yy+1)and(mm=12)and(dd=31)and(j=1)and(k=1) then goto a4// ДЕК
+                             else goto a2;
+                                          
+                                              // конец даты
+a4:    delete(SearchRec.Name,9,4);SearchRec.Name[6]:='/';
+       Memo1.Lines.Add(SearchRec.Name+' - '+ad);
+        schet:=schet+1;
+     end; // конец если индексы совпадают
+a2:   CloseFile(f);
+      end;
+end;
+
+procedure TForm6.FormActivate(Sender: TObject);
+var
+x,y,z:integer;
+f2:textfile;
+begin
+if prosm=0 then exit;
+form6.Caption:='Подождите...';
+                                        // НАПОМИНАНИЕ ПОДПЕЧАТКИ НОТАМОВ
+memo1.Clear;
+z:=1; schet:=0;
+ASSIGNfile(F2,'Napom.txt');
+{$i-}
+reset(f2);
+{$i-}
+if IOResult <> 0 then
+  begin
+  MessageDlg('Ошибка доступа к файлу "Napom.txt"',
+  mtError,[mbOk],0);
+  exit;
+  end;
+while not eof(f2) do
+  begin
+  readln(f2, napr);
+  Schet:=0;
+  if z=1 then
+    begin
+    Memo1.Lines.Add(napr+':');
+    z:=0;
+    end
+    else
+    begin
+    Memo1.Lines.Add('');
+    Memo1.Lines.Add(napr+':');
+    end;
+  napr:=napr+'.npr';
+  ASSIGNfile(F1,napr);
+  {$i-}
+  reset(f1);
+  {$i-}
+  if IOResult <> 0 then
+    begin
+    MessageDlg('Ошибка доступа к файлу "'+'Npr\'+Napr+'"'+#13+
+    'Возможно не существует такого направления!!!'
+    ,mtError,[mbOk],0);
+    exit;
+    end;
+  readln(f1, PAPKA);         // считывание страны
+  ii:=1; jj:=1;
+  while not eof(f1) do
+    begin
+    readln(f1, s);
+    if length(s)<3 then begin ser[ii]:=s;ii:=ii+1;end //счит серий для бпи
+                   else begin gor[jj]:=s;jj:=jj+1;end;//счит городов для бпи
+    end;
+  closefile(f1);
+
+  ii:=ii-1;jj:=jj-1;
+  for x:=1 to jj do
+    begin
+    ind:=gor[x];
+    for y:=1 to ii do
+       BEGIN
+       put:=PAPKA+'\'+ser[y]+'\';
+       if FindFirst(put+'*.txt', faAnyFile, SearchRec) =0 then  Poisk;
+       END;
+    end;
+ if schet=0 then Memo1.Lines.Add('Нет НОТАМ для подпечатки.');
+
+  end;
+ closefile(f2);
+ form3.sound(okk);
+// cursor:=crDefault;
+ Label1.caption:='Номера НОТАМ которые сегодня        необходимо подпечатать:';
+ form6.Caption:='Напоминание';
+ prosm:=0;
+end;
+
+procedure TForm6.Button1Click(Sender: TObject);
+begin
+form6.Close;
+end;
+
+end.

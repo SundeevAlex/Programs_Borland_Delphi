@@ -1,0 +1,1421 @@
+unit Bpi;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, FileCtrl, MPlayer;
+
+type
+  TForm4 = class(TForm)
+    CheckBox1: TCheckBox;
+    Label1: TLabel;
+    Button1: TButton;
+    RadioButton1: TRadioButton;
+    RadioButton2: TRadioButton;
+    Button2: TButton;
+    Panel1: TPanel;
+    ComboBox1: TComboBox;
+    Panel2: TPanel;
+    Memo1: TMemo;
+    RadioGroup1: TRadioGroup;
+    Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    RadioGroup2: TRadioGroup;
+    Button6: TButton;
+    Button7: TButton;
+    ComboBox2: TComboBox;
+    Memo2: TMemo;
+    Button9: TButton;
+    Button10: TButton;
+    Edit1: TEdit;
+    Button8: TButton;
+    Button11: TButton;
+    ComboBox3: TComboBox;
+    Memo3: TMemo;
+    Button12: TButton;
+    Button13: TButton;
+    ComboBox4: TComboBox;
+    Memo4: TMemo;
+    Button14: TButton;
+    Button15: TButton;
+    CheckBox2: TCheckBox;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    Panel5: TPanel;
+    ComboBox5: TComboBox;
+    Memo5: TMemo;
+    Button16: TButton;
+    MediaPlayer1: TMediaPlayer;
+    CheckBox3: TCheckBox;
+    procedure Button16Click(Sender: TObject);
+    procedure Memo5KeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBox5Click(Sender: TObject);
+    procedure CheckBox2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button15Click(Sender: TObject);
+    procedure Button14Click(Sender: TObject);
+    procedure Memo4KeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBox4Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
+    procedure Memo3KeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBox3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
+    procedure Memo1KeyPress(Sender: TObject; var Key: Char);
+    procedure Button8Click(Sender: TObject);
+    procedure ComboBox2KeyPress(Sender: TObject; var Key: Char);
+    procedure Button5Click(Sender: TObject);
+    procedure Button10Click(Sender: TObject);
+    procedure Memo2KeyPress(Sender: TObject; var Key: Char);
+    procedure Button9Click(Sender: TObject);
+    procedure ComboBox2Click(Sender: TObject);
+    procedure RadioGroup2Click(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure Button7Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure ComboBox1Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure RadioButton1Click(Sender: TObject);
+    procedure RadioButton2Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure See;
+    procedure See1;
+    Procedure DOS_FILE;
+    Procedure PEREVOD;
+    Procedure Poisk;
+    Procedure Razbiv;
+    Procedure Shapka;
+    Procedure Sozdat;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormDeactivate(Sender: TObject);
+    Procedure Pech1;
+ private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+Const
+Imja='Listpred.txt';
+var
+  Form4: TForm4;
+  CANCEL:INTEGER;
+  F,f1,f2,f3:TEXTFILE;
+  s1,s:string[80];
+  num:string[8];
+  ad:string[16];
+  P_A:string[4];
+  P_B:string[11];
+  P_C:string[16];
+ sDOS:string[90];
+  Napr:string;
+  Napr1:string;
+  Path: string;
+  Put,PAPKA:string;
+  SER:ARRAY [1..20] OF STRING[1];//ДЛЯ ЗАПОМИНАНИЯ СЕРИЙ ДЛЯ ФОРМИР БПИ
+  GOR:ARRAY [1..200] OF STRING[4];//ДЛЯ ЗАПОМИНАНИЯ ИНДЕКСОВ ДЛЯ ФОРМИР БПИ
+  Ind:string[4];
+  i,j,k:integer;
+ii,jj,inde:integer;
+  x,y:integer;
+  a,b:integer;
+  kz:string[15];
+  country : string[15]; // наименование страны
+ SearchRec: TSearchRec;
+   Time: TDateTime; // текущее время
+   dd,mm,yy:integer;
+  soun:integer;
+implementation
+
+uses {Index,} Notambd, Prosm,printers, Bpi_Pech;
+
+{$R *.dfm}
+
+function GetPath(mes: string):string;// для обзора папок
+var
+Root: string; // корневой каталог
+pwRoot : PWideChar;
+Dir: string;
+begin
+Root := '';
+GetMem(pwRoot, (Length(Root)+1) * 2);
+pwRoot := StringToWideChar(Root, pwRoot, MAX_PATH*2);
+if selectDirectory(mes, pwRoot, Dir) then
+if length(Dir) =2 then GetPath := Dir+'\'
+                  else GetPath := Dir
+                  else GetPath := '';
+end;
+
+procedure TForm4.See;       // просмотр введенных пунктов 1
+var
+ss,ss1:string[4];
+strok:string;
+begin
+AssignFile(f, 'Russia.txt');
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Отсутствует файл "Russia.txt"',
+   mtError,[mbOk],0); exit;
+   end;
+closefile(f);
+strok:=''; I:=0;
+for j:=0 to Memo1.Lines.Count-1 do
+   begin
+   AssignFile(f, 'Russia.txt');
+   Reset(f);
+   ss:=Memo1.Lines[j];
+   while not EOF(f) do
+       begin
+       readln(f, s1);
+       ss1:=s1;
+       if ss=ss1 then
+          begin
+          i:=i+1;strok:=strok+IntToStr(i)+'.'+s1+#13;
+          end;
+       end;
+   CloseFile(f);
+   end;
+IF strok<>'' then
+   begin
+   form3.sound(okk);
+   if i<>j then
+   ShowMessage(strok+#13+'ВНИМАНИЕ!!!'+#13+
+   'Найдены не все пункты!!! '+IntToStr(j-i)+
+   ' из '+IntToStr(j)+' не найдено'+#13+
+   'Проверьте правильность ввода индексов!')
+             else ShowMessage(strok)
+   end
+             else begin form3.sound(err);ShowMessage('Ни чего не найдено!!!');end
+end;
+
+procedure TForm4.See1;       // просмотр введенных пунктов 2
+var
+ss,ss1:string[4];
+strok:string;
+begin
+AssignFile(f, 'Russia.txt');
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Отсутствует файл "Russia.txt"',
+   mtError,[mbOk],0); exit;
+   end;
+closefile(f);
+strok:=''; I:=0;
+for j:=0 to Memo2.Lines.Count-1 do
+   begin
+   AssignFile(f, 'Russia.txt');
+   Reset(f);
+   ss:=Memo2.Lines[j];
+   while not EOF(f) do
+       begin
+       readln(f, s1);
+       ss1:=s1;
+       if ss=ss1 then
+          begin
+          i:=i+1;strok:=strok+IntToStr(i)+'.'+s1+#13;
+          end;
+       end;
+   CloseFile(f);
+   end;
+form3.sound(okk);
+IF strok<>'' then
+   if i<>j then
+   ShowMessage(strok+#13+'ВНИМАНИЕ!!!'+#13+
+   'Найдены не все пункты!!! '+IntToStr(j-i)+
+   ' из '+IntToStr(j)+' не найдено'+#13+
+   'Проверьте правильность ввода индексов!')
+             else ShowMessage(strok)
+             else ShowMessage('Ни чего не найдено!!!');
+end;
+
+procedure TForm4.Button1Click(Sender: TObject);
+begin              // просмотр введенных пунктов
+See;
+end;
+
+procedure TForm4.RadioButton2Click(Sender: TObject);
+begin
+Memo1.enabled:=true;
+Memo4.enabled:=true;
+if memo4.text<>'' then button14.Enabled:=true;
+ComboBox4.enabled:=true;
+if (memo1.text<>'')and(memo4.text<>'')and(combobox4.text<>'') then
+  begin
+  Button1.enabled:=true;
+  Button3.enabled:=true;
+  button3.SetFocus;
+  Button4.enabled:=true;
+  Button11.enabled:=true;
+  end
+  else
+  begin
+  Button3.enabled:=false;
+  Button4.enabled:=false;
+  Button11.enabled:=false;
+  Button1.enabled:=false;
+  end;
+Button2.enabled:=false;
+Label1.enabled:=false;
+ComboBox1.enabled:=false;
+end;
+
+procedure TForm4.RadioButton1Click(Sender: TObject);
+begin
+button14.Enabled:=false;
+Memo4.enabled:=false;
+ComboBox4.enabled:=false;
+Memo1.enabled:=false;
+Button1.enabled:=false;
+Button2.enabled:=false;
+Button11.enabled:=false;
+Label1.enabled:=true;
+ComboBox1.enabled:=true; ComboBox1.setfocus;
+if ComboBox1.text='' then
+  begin
+  Button3.enabled:=false;
+  Button4.enabled:=false;
+  end
+  else
+  begin
+  Button3.enabled:=true;
+  Button4.enabled:=true;
+  end;
+end;
+
+procedure TForm4.FormActivate(Sender: TObject);
+label a1;
+var r:string;
+begin
+AssignFile(f, 'Sound.nst');
+Reset(f);
+readln(f,s);
+soun:=StrToInt(s);
+closefile(f);
+MEMO4.Clear;
+//sound(err);
+{checkbox2.checked:=false;
+checkbox2.enabled:=false;
+Button7.enabled:=false;
+Button10.Enabled:=false;
+MEMO2.Clear;MEMO3.Clear;
+Edit1.Enabled:=true;
+RadioButton1.SetFocus;
+ComboBox5.Enabled:=false;
+memo5.Enabled:=false;
+button16.enabled:=false;   }
+AssignFile(f,'Other.txt');   //считывание настроек проги
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Не могу найти файл: Other.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'РОССИЯ'+#13+
+  'Б'+#13+
+  'И'+#13+
+  'УНББ',
+  mtError,[mbOk],0);
+  exit;//goto a1;
+  end;
+//memo1.Enabled:=true;
+Memo1.Clear;
+readln(f, PAPKA);
+while not EOF(f) do
+  begin
+  readln(f, s1);
+  IF length(s1)=1 then 
+                  Memo4.Lines.Add(s1)
+                  else
+                  Memo1.Lines.Add(s1);
+  end;
+Combobox4.Clear;
+combobox4.Text:=papka;
+//memo1.Enabled:=false;
+closefile(f);
+
+Combobox3.Clear;
+ASSIGNfile(F,'Country.txt');// считывание стран из файла
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then begin
+form3.sound(err);
+MessageDlg('Отсутствует файл "Country.txt"'+
+#13+'Примерное содержание файла:'+#13+
+'РОССИЯ+'+#13+
+'КИТАЙ'+#13+#13+
+'занак "+" обозначает, что в файле Russia.txt'+#13+
+'для этой страны имеются четырехбуквенные индексы'+#13+
+'с расшифровкой. Для автоматического раскодирования.',
+mtError,[mbOk],0); exit{form1.close}; end;
+while not eof(f) do
+  begin
+  s:='';
+  readln(f,country);
+  if country[length(country)]='+' then delete(country,length(country),1);
+  ComboBox3.Items.Add(country);
+  ComboBox4.Items.Add(country);
+  end;
+closefile(f);
+a1:
+AssignFile(f,'Dest1.txt');   //считывание настроек проги
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Не могу найти файл: Dest1.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'C:\Refis\'+Imja+#13+'2',
+  mtError,[mbOk],0);
+  exit;
+  end;
+readln(f,s1);
+edit1.Text:=s1;
+readln(f,s1);
+if (s1<>'0')and(s1<>'1')and(s1<>'2') then s1:='0';
+j:=strtoint(s1);
+RadioGroup2.ItemIndex:=j;
+closefile(f);
+
+comboBox1.Clear; comboBox2.Clear; comboBox5.Clear;
+if FindFirst('*.npr', faAnyFile, SearchRec) =0 then
+  begin
+  napr:=SearchRec.Name;
+  delete(napr,(length(napr))-3,4);
+  ComboBox1.Items.Add(Napr);
+  ComboBox2.Items.Add(Napr);
+  ComboBox5.Items.Add(Napr);
+  while (FindNext(SearchRec) = 0) do
+     begin
+     Napr:=SearchRec.Name;
+     delete(napr,(length(napr))-3,4);
+     ComboBox1.Items.Add(Napr);
+     ComboBox2.Items.Add(Napr);
+     ComboBox5.Items.Add(Napr);
+     end;
+  end
+  else
+  begin
+  form3.sound(err);
+  MessageDlg('Отсутвуют файлы направления!!!'+#13+#13+
+  'Примерный вид файла:'+#13+
+  'имя файла: ЗАПАД.npr'+#13+
+  'Содержание файла:'+#13+
+  'УНББ'+#13+
+  'УННТ'
+  ,mtError,[mbOk],0);exit;
+  end;
+  IF inde<>0 then combobox1.itemindex:=inde;
+  //combobox1.Text:=kz;
+AssignFile(f,'Napom.txt');   //напоминание
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Не могу найти файл: Napom.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'ЗАПАД'+#13+
+  'ВОСТОК'+#13,
+  mtError,[mbOk],0);
+  exit;
+  end;
+Memo5.Clear;
+while not EOF(f) do
+  begin
+  readln(f, s1);
+  Memo5.Lines.Add(s1);
+  end;
+closefile(f);
+
+{Edit1.Enabled:=false;
+Radiogroup2.enabled:=false;
+Button6.enabled:=false; }
+Button7.enabled:=false;
+{Button8.enabled:=false;
+Button9.enabled:=false;
+Button10.enabled:=false;
+Button12.enabled:=false;
+Button13.enabled:=false;
+combobox1.enabled:=true;
+combobox2.enabled:=false;
+combobox3.enabled:=false;
+memo2.enabled:=false;
+memo3.enabled:=false; }combobox1.enabled:=true;
+IF radiobutton2.Checked=true then combobox1.Enabled:=false;
+{if combobox1.text='' then
+   begin
+   Button3.enabled:=false;Button4.enabled:=false;
+   //combobox1.SetFocus;
+   end;      }
+button15.SetFocus;
+KZ:=COmbobox1.text;
+end;
+
+procedure TForm4.ComboBox1Click(Sender: TObject);
+begin
+IF COMBOBOX1.TEXT='' THEN EXIT;
+form3.sound(okk);
+Napr:=ComboBox1.Text;
+Button3.Enabled:=true;Button4.Enabled:=true;
+Button3.setfocus;
+end;
+
+procedure TForm4.Button6Click(Sender: TObject);
+begin           // обзор папок
+Path := GetPath('Выберите папку для'+#13+'сохраниения файла БПИ');
+s1:=Path;
+if s1 <> '' then button7.Enabled:=true;
+if Path <> '' then
+   if s1[length(Path)]<>'\' then Edit1.Text := Path+'\'+Imja
+                           else Edit1.Text := Path+Imja;
+
+end;
+
+procedure TForm4.Button7Click(Sender: TObject);
+begin
+Button7.Enabled:=false;
+AssignFile(f,'Dest1.txt');
+{$i-}
+Rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Не могу найти файл: Dest1.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'C:\Refis\'+Imja+#13+'2',
+  mtError,[mbOk],0);
+  exit;
+  end;
+s1:=edit1.Text;
+writeln(f,s1);
+j:=RadioGroup2.ItemIndex;
+s1:=inttostr(j);
+writeln(f,s1);
+closefile(f);
+
+Button7.Enabled:=false;
+end;
+
+procedure TForm4.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+Button7.Enabled:=true;
+end;
+
+procedure TForm4.RadioGroup2Click(Sender: TObject);
+begin
+Button7.Enabled:=true;
+end;
+
+procedure TForm4.ComboBox2Click(Sender: TObject);
+begin
+IF COMBOBOX2.TEXT='' THEN EXIT;
+form3.sound(okk);
+checkbox2.enabled:=true;
+Button8.enabled:=true;
+Button12.enabled:=true;
+Button13.enabled:=true;
+memo2.Enabled:=true;
+memo3.Enabled:=true;
+combobox3.Enabled:=true;
+Napr1:=ComboBox2.Text+'.npr';
+ASSIGNfile(F,Napr1);
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Ошибка доступа к файлу '+Napr1,
+  mtError,[mbOk],0);
+  exit;
+  end;
+Memo2.Clear;Memo3.Clear;
+//Memo1.Clear;Memo4.Clear;
+readln(f, PAPKA);
+//i:=1;
+while not EOF(f) do
+  begin
+  readln(f, s1);
+  IF length(s1)=1 then //begin ser[i]:=s1;i:=i+1; end
+                  Memo3.Lines.Add(s1)
+                  else
+                  Memo2.Lines.Add(s1);
+  end;
+CloseFile(f);
+combobox3.Text:=papka;
+//if Memo2.Lines[0]='ВСЕ' then checkbox2.checked:=true{checked};
+if Memo2.Lines[0]='ВСЕ' then checkbox2.checked:=true
+                    else checkbox2.checked:=false;
+Memo2.setfocus;
+Button9.Enabled:=true;
+
+end;
+
+procedure TForm4.Button9Click(Sender: TObject);
+begin
+form3.sound(err);
+j:=MessageDlg('Удалить направление: '+ComboBox2.text+'?',
+   mtWarning,[mbOk,mbCancel],0);
+if (j=2)or(j=0) then exit;
+ASSIGNfile(F,ComboBox2.text+'.npr');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Ошибка доступа к файлу '+ComboBox2.text+'.npr',
+  mtError,[mbOk],0);
+  exit;
+  end;
+  closefile(f);
+  erase(f);
+  form3.sound(okk);
+MessageDlg('Направление: '+ComboBox2.text+' удалено.',
+   mtInformation,[mbOk],0);
+Button8.Enabled:=false;
+Button9.Enabled:=false;
+Button12.enabled:=false;
+Button13.enabled:=false;
+Memo2.Clear; Memo3.Clear;
+
+ j:=ComboBox2.itemindex;
+ ComboBox2.Items[j]:='';
+ ComboBox2.itemindex:=-1;
+ ComboBox3.itemindex:=-1;ComboBox3.TEXT:='';
+end;
+
+procedure TForm4.Memo2KeyPress(Sender: TObject; var Key: Char);
+begin
+checkbox2.enabled:=true;
+Button8.enabled:=true;
+if memo3.text<>'' then Button10.Enabled:=true;
+Button12.enabled:=true;
+end;
+
+procedure TForm4.Button10Click(Sender: TObject);
+label a1,a2;
+begin                             // сохранение новых направлений
+
+if combobox3.text='' then
+   begin
+      form3.sound(err);
+      MessageDlg('Выберите страну !',mterror,[mbOk],0);
+      combobox3.SetFocus;
+      exit;
+   end;
+if CheckBox2.State = cbChecked then
+  begin
+  memo2.clear;
+  memo2.Text:='ВСЕ';
+  goto a2;
+  end;
+for j:=0 to Memo2.Lines.Count-1 do
+   IF (LENGTH(Memo2.Lines[j])<3) THEN
+      BEGIN
+      form3.sound(err);
+      MessageDlg('Проверьте правильность ввода'+#13+
+      '4-х буквенных индексов !',mterror,[mbOk],0);
+      memo2.SetFocus;
+      exit;
+      END;
+a2:
+if memo3.text='' then goto a1;
+for j:=0 to Memo3.Lines.Count-1 do
+   IF ((Memo3.Lines[j])=''){or(memo3.text='')} THEN
+a1:   BEGIN
+      form3.sound(err);
+      MessageDlg('Проверьте правильность'+#13+
+      'ввода серий !',mterror,[mbOk],0);
+      memo3.SetFocus;
+      exit;
+      END;
+ASSIGNfile(F,ComboBox2.text+'.npr');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  j:=MessageDlg('Такого направления не существует!'+#13+#13+
+  'Сохранить как новое направление?'
+  ,mtwarning,[mbOk,mbcancel],0);
+  if (j=0)or(j=2) then begin  {Button10.Enabled:=false;}exit;end;
+  ASSIGNfile(F1,ComboBox2.text+'.npr');
+  rewrite(f1);
+  writeln(f1, combobox3.text);
+  for j:=0 to Memo3.Lines.Count-1 do writeln(f1, Memo3.Lines[j]);
+  if CheckBox2.State = cbChecked then
+  write(f1, Memo2.Text)
+  else
+  for j:=0 to Memo2.Lines.Count-1 do
+  if j<Memo2.Lines.Count-1 then
+    writeln(f1, Memo2.Lines[j])
+    else
+    write(f1, Memo2.Lines[j]);
+  closefile(f1);
+  form3.sound(okk);
+  MessageDlg('Новое направление сохранено!', mtInformation,[mbOk],0);
+  Button10.Enabled:=false;
+  exit;
+  end;
+closefile(f);
+ASSIGNfile(F,ComboBox2.text+'.npr');
+rewrite(f);
+  writeln(f, combobox3.text);
+  for j:=0 to Memo3.Lines.Count-1 do writeln(f, Memo3.Lines[j]);
+for j:=0 to Memo2.Lines.Count-1 do
+if j<Memo2.Lines.Count-1 then
+  writeln(f, Memo2.Lines[j])
+  else
+  write(f, Memo2.Lines[j]);
+closefile(f);
+form3.sound(okk);
+MessageDlg('Изменения сохранены!', mtInformation,[mbOk],0);
+Button10.Enabled:=false;
+end;
+
+procedure TForm4.Button5Click(Sender: TObject);
+begin                       // ВХОД  в режим редактирования
+s1:=InputBox('Доступ ограничен!','Для входа в режим введите пароль:','');
+IF s1='' then exit;
+if s1='6606' then
+  begin
+  RadioGroup2.Enabled:=true;
+  Edit1.Enabled:=true;
+  Button6.Enabled:=true;
+  ComboBox2.Enabled:=true;//ComboBox3.Enabled:=true;//Memo3.Enabled:=true;
+  Panel3.enabled:=true;
+  Panel4.enabled:=true;
+  Panel5.enabled:=true;
+  ComboBox2.SETfocus;
+  ComboBox5.Enabled:=true;
+  memo5.Enabled:=true;
+  button5.Enabled:=false;
+  radiogroup1.font.Color:=002222;
+  radiogroup2.font.Color:=002222;
+  panel4.font.Color:=002222;
+  panel3.font.Color:=002222;
+  panel5.font.Color:=002222;
+  edit1.font.Color:=002222;
+  combobox2.font.Color:=002222;
+  combobox3.font.Color:=002222;
+  combobox5.font.Color:=002222;
+  memo2.font.Color:=002222;
+  memo3.font.Color:=002222;
+  memo5.font.Color:=002222;
+  end
+  else begin
+  //MediaPlayer1.Play;
+  form3.sound(err);
+  messageDlg('Неверный пароль!!!',mtError,[mbOk],0);
+  end;
+end;
+
+procedure TForm4.ComboBox2KeyPress(Sender: TObject; var Key: Char);
+begin
+case Key of
+'/': key:=Chr(0);
+'\': key:=Chr(0);
+'*': key:=Chr(0);
+'.': key:=Chr(0);
+',': key:=Chr(0);
+'?': key:=Chr(0);
+'!': key:=Chr(0);
+//else Key :=Chr(0);
+end;
+checkbox2.enabled:=true;
+Button10.enabled:=true;
+memo2.Enabled:=true;
+memo3.Enabled:=true;
+combobox3.Enabled:=true;
+combobox2.setfocus;
+end;
+
+procedure TForm4.Button8Click(Sender: TObject);
+begin                  //просмотр введенных пунктов
+see1;
+end;
+
+procedure TForm4.Memo1KeyPress(Sender: TObject; var Key: Char);
+begin
+if memo4.text<>'' then Button2.enabled:=true;
+Button3.enabled:=false;//true;
+Button4.enabled:=false;//true;
+Button11.enabled:=true;
+Button1.enabled:=true;
+end;
+
+procedure TForm4.Button11Click(Sender: TObject);
+begin
+Memo1.Clear;
+Memo1.setfocus;
+Button11.enabled:=false;
+Button1.enabled:=false;
+Button3.enabled:=false;
+Button4.enabled:=false;
+end;
+
+procedure TForm4.Button2Click(Sender: TObject);
+LABEL A1;
+begin
+if combobox4.text='' then
+   begin
+      form3.sound(err);
+      MessageDlg('Выберите страну !',mterror,[mbOk],0);
+      exit;
+   end;
+for j:=0 to Memo1.Lines.Count-1 do
+   IF LENGTH(Memo1.Lines[j])<4 THEN
+      BEGIN
+      form3.sound(err);
+      MessageDlg('Проверьте правильность ввода'+#13+
+      '4-х буквенных индексов !',mterror,[mbOk],0);
+      memo1.SetFocus;
+      exit;
+      END;
+if memo4.text='' then goto a1;
+for j:=0 to Memo4.Lines.Count-1 do
+   IF ((Memo4.Lines[j])='') THEN
+a1:   BEGIN
+      form3.sound(err);
+      MessageDlg('Проверьте правильность'+#13+
+      'ввода серий !',mterror,[mbOk],0);
+      memo4.SetFocus;
+      exit;
+      END;
+
+  ASSIGNfile(F,'Other.txt');
+  rewrite(f);
+  writeln(f, combobox4.text);
+  for j:=0 to Memo4.Lines.Count-1 do writeln(f, Memo4.Lines[j]);
+  for j:=0 to Memo1.Lines.Count-1 do
+    writeln(f, Memo1.Lines[j]);
+  closefile(f);
+  form3.sound(okk);
+  MessageDlg('Изменения сохранены.', mtInformation,[mbOk],0);
+  Button2.Enabled:=false;
+  Button3.enabled:=true;
+  Button4.enabled:=true;
+end;
+
+Procedure TForm4.PEREVOD;   // перевод из вин в дос
+var
+js:integer;
+begin
+for js:=1 to length(Sdos) do
+  if (ord(sdos[js])>191)and(ord(sdos[js])<240) then
+                           sdos[js]:=(chr(ord((sdos[js]))-64))
+                      else
+     if (ord(sdos[js])>239)and(ord(sdos[js])<256) then
+                           sdos[js]:=(chr(ord((sdos[js]))-16))
+                      else
+                           sdos[js]:=(chr(ord((sdos[js]))));
+end;
+
+Procedure TForm4.Poisk;
+Label a1,a2,a3,a4;
+//var cancel:integer;
+begin
+//  cancel:=0;
+  assignfile(f,put+SearchRec.Name); //открыли нотам
+  reset(f);
+  readln(f,Num);                  
+  readln(f,ad);
+  readln(f,s);//пропускаем поле Щ
+  readln(f,s);
+  delete(s,1,2);// поле А
+  if ind='ВСЕ' then s:='ВСЕ';
+  if s=ind then
+      begin
+      readln(f,s);
+      delete(s,1,2);// поле Б
+      P_B:=s[5]+s[6]+s[3]+s[4]+s[1]+s[2]+' '+s[8]+s[9]+s[10]+s[11];
+      if CheckBox1.State = cbChecked then          //  дате действует?  ( 1 )
+        begin
+        s:=FormatDateTime('dd.mm.yyyy',Now());
+        i:=StrToInt(P_B[5]+P_B[6]);
+        dd:=StrToInt(s[1]+s[2]);mm:=StrToInt(s[4]+s[5]);yy:=StrToInt(s[9]+s[10]);
+        IF i<yy then goto a3;         //если год меньше
+        j:=StrToInt(P_B[3]+P_B[4]);  //если месяц меньше а год не больше
+        IF (i=yy)and(j<mm) then goto a3;
+        k:=StrToInt(P_B[1]+P_B[2]);  // если месяц равен,то сверяем числа
+        IF (i=yy)and(j=mm)and(k<=dd) then goto a3;
+        IF (i=yy)and(j=mm)and(k=dd+1) then goto a3; // если с завтра действует
+        IF (i=yy)and(mm=1)and(dd=31)and(j=2)and(k=1) then goto a3; // ЯНВ
+        IF (i=yy)and(mm=2)and((dd=28)or(dd=29))and(j=3)and(k=1) then goto a3;//ФЕВ
+        IF (i=yy)and(mm=3)and(dd=31)and(j=4)and(k=1) then goto a3;  // МАРТ
+        IF (i=yy)and(mm=4)and(dd=30)and(j=5)and(k=1) then goto a3;  // АПР
+        IF (i=yy)and(mm=5)and(dd=31)and(j=6)and(k=1) then goto a3;  // МАЙ
+        IF (i=yy)and(mm=6)and(dd=30)and(j=7)and(k=1) then goto a3;  // ИЮН
+        IF (i=yy)and(mm=7)and(dd=31)and(j=8)and(k=1) then goto a3;  // ИЮЛ
+        IF (i=yy)and(mm=8)and(dd=31)and(j=9)and(k=1) then goto a3;  // АВГ
+        IF (i=yy)and(mm=9)and(dd=30)and(j=10)and(k=1) then goto a3; // СЕН
+        IF (i=yy)and(mm=10)and(dd=31)and(j=11)and(k=1) then goto a3;// ОКТ
+        IF (i=yy)and(mm=11)and(dd=30)and(j=12)and(k=1) then goto a3;// НОЯ
+        IF (i=yy+1)and(mm=12)and(dd=31)and(j=1)and(k=1) then goto a3// ДЕК
+                             else goto a1;
+        end;                                      // конец даты
+a3:   s:='';readln(f,s);
+      delete(s,1,2);// поле Ц
+      if (s[1])<>'П' then begin
+                          P_C:=s[5]+s[6]+s[3]+s[4]+s[1]+s[2];
+                          for i:=length(P_C)+1 to length(s) do P_C:=p_c+s[i];
+                          end
+                          else P_C:=s;
+      readln(f,s);//пропускаем E)
+      for i:=length(ad) to 16 do ad:=ad+' ' ;
+      sDOS:=ad+' ОТ:'+P_B+' ДО:';
+      if RadioGroup2.ItemIndex=0 then perevod;
+      write(f1,sDOS);
+      s:='';s:=P_C;
+      for i:=length(P_C) to {39}34 do s:=s+' ';
+      sDOS:=s+num;
+      if RadioGroup2.ItemIndex=0 then perevod;
+      writeln(f1,sDOS);
+      while not eof(f) do
+         begin
+         readln(f,s);
+         sDOS:=s;
+         if RadioGroup2.ItemIndex=0 then perevod;
+         writeln(f1,'                 '+sDOS);
+         end;
+         writeln(f1);cancel:=1;
+     end; // конец если индексы совпадают
+a1:CloseFile(f);
+  while (FindNext(SearchRec) = 0) do
+      begin
+  assignfile(f,put+SearchRec.Name); //открыли нотам
+  reset(f);
+  readln(f,Num);
+  readln(f,ad);
+  readln(f,s);//пропускаем поле Щ
+  readln(f,s);
+  delete(s,1,2);// поле А
+  if ind='ВСЕ' then s:='ВСЕ';
+  if s=ind then
+      begin
+      readln(f,s);
+      delete(s,1,2);// поле Б
+      P_B:=s[5]+s[6]+s[3]+s[4]+s[1]+s[2]+' '+s[8]+s[9]+s[10]+s[11];
+      if CheckBox1.State = cbChecked then          //  дате действует? ( 2 )
+        begin
+        s:=FormatDateTime('dd.mm.yyyy',Now());
+        i:=StrToInt(P_B[5]+P_B[6]);
+        dd:=StrToInt(s[1]+s[2]);mm:=StrToInt(s[4]+s[5]);yy:=StrToInt(s[9]+s[10]);
+        IF i<yy then goto a4;         //если год меньше
+        j:=StrToInt(P_B[3]+P_B[4]);  //если месяц меньше а год не больше
+        IF (i=yy)and(j<mm) then goto a4;
+        k:=StrToInt(P_B[1]+P_B[2]);  // если месяц равен,то сверяем числа
+        IF (i=yy)and(j=mm)and(k<=dd) then goto a4;
+        IF (i=yy)and(j=mm)and(k=dd+1) then goto a4; // если с завтра действует
+        IF (i=yy)and(mm=1)and(dd=31)and(j=2)and(k=1) then goto a4;
+        IF (i=yy)and(mm=2)and((dd=28)or(dd=29))and(j=3)and(k=1) then goto a4;//ФЕВ
+        IF (i=yy)and(mm=3)and(dd=31)and(j=4)and(k=1) then goto a4;  // МАРТ
+        IF (i=yy)and(mm=4)and(dd=30)and(j=5)and(k=1) then goto a4;  // АПР
+        IF (i=yy)and(mm=5)and(dd=31)and(j=6)and(k=1) then goto a4;  // МАЙ
+        IF (i=yy)and(mm=6)and(dd=30)and(j=7)and(k=1) then goto a4;  // ИЮН
+        IF (i=yy)and(mm=7)and(dd=31)and(j=8)and(k=1) then goto a4;  // ИЮЛ
+        IF (i=yy)and(mm=8)and(dd=31)and(j=9)and(k=1) then goto a4;  // АВГ
+        IF (i=yy)and(mm=9)and(dd=30)and(j=10)and(k=1) then goto a4; // СЕН
+        IF (i=yy)and(mm=10)and(dd=31)and(j=11)and(k=1) then goto a4;// ОКТ
+        IF (i=yy)and(mm=11)and(dd=30)and(j=12)and(k=1) then goto a4;// НОЯ
+        IF (i=yy+1)and(mm=12)and(dd=31)and(j=1)and(k=1) then goto a4// ДЕК
+                             else goto a2;
+
+        end;                                      // конец даты
+a4:   s:='';readln(f,s);
+      delete(s,1,2);// поле Ц
+      if (s[1])<>'П' then begin
+                          P_C:=s[5]+s[6]+s[3]+s[4]+s[1]+s[2];
+                          for i:=length(P_C)+1 to length(s) do P_C:=p_c+s[i];
+                          end
+                          else P_C:=s;
+      readln(f,s);//пропускаем E)
+      for i:=length(ad) to 16 do ad:=ad+' ' ;
+      sDOS:=ad+' ОТ:'+P_B+' ДО:';
+      if RadioGroup2.ItemIndex=0 then perevod;
+      write(f1,sDOS);
+      s:='';s:=P_C;
+      for i:=length(P_C) to {39}34 do s:=s+' ';
+      sDOS:=s+num;
+      if RadioGroup2.ItemIndex=0 then perevod;
+      writeln(f1,sDOS);
+      while not eof(f) do
+         begin
+         readln(f,s);
+         sDOS:=s;
+         if RadioGroup2.ItemIndex=0 then perevod;
+         writeln(f1,'                 '+sDOS);
+         end;
+         writeln(f1); cancel:=1;
+      end; // конец если индексы совпадают
+a2:   CloseFile(f);
+      end;
+{if cancel=0 then
+   begin
+     SDOS:=ind+'             НЕТ НОТАМ.'+put;
+     if RadioGroup2.ItemIndex=0 then perevod;
+     writeln(f1,SDOS);//cancel:=1;
+   end;      }
+
+end;
+
+Procedure TForm4.Shapka;              
+begin
+sDos:='================ ==================================================== ========';
+if RadioGroup2.ItemIndex=0 then perevod;
+//Perevod;
+writeln(f1,sDos);
+sDos:='АЭРОДРОМ (ПУНКТ)              СОДЕРЖАНИЕ     НОТАМА                    НОМЕР  ';
+if RadioGroup2.ItemIndex=0 then perevod;
+//Perevod;
+writeln(f1,sDos);
+sDos:='================ ==================================================== ========';
+if RadioGroup2.ItemIndex=0 then perevod;
+//Perevod;
+writeln(f1,sDos);
+writeln(f1,'');
+end;
+
+Procedure TForm4.Razbiv;                     // разбивка на страницы для ДОС
+Label a1;
+begin
+assignfile(f1,'Otchet1.txt'{edit1.text});            // проверка куда записывать
+{$i-}
+rewrite(f1);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  edit1.text,mtError,[mbOk],0);
+  exit;
+  end;
+assignfile(f,'Otchet.txt');
+reset(f);                     //запись TXT файла листа предупреждения
+sDos:='Стр. N 1';
+//Perevod;
+if RadioGroup2.ItemIndex=0 then perevod;
+writeln(f1,sDos);
+sDos:=FormatDateTime('dd.mm.yy',Now())+' '+'Тм'+FormatDateTime('hh:mm',Now());
+//Perevod;
+if RadioGroup2.ItemIndex=0 then perevod;
+writeln(f1,sDos);
+sDos:='                            БЮЛЛЕТЕНЬ ПРЕДПОЛЕТНОЙ ИНФОРМАЦИИ';
+//Perevod;
+if RadioGroup2.ItemIndex=0 then perevod;
+writeln(f1,sDos);
+if Radiobutton1.checked=true then s:=combobox1.text
+                             else s:='';
+sDos:='                   Аэродром вылета: БАРНАУЛ  Направление: '+s;
+if RadioGroup2.ItemIndex=0 then perevod;
+//Perevod;
+writeln(f1,sDos);
+writeln(f1,'');
+Shapka;
+a:=9;b:=1;
+while not eof(f) do
+  begin
+  a:=a+1;
+  readln(f,sDos);
+  s1:=sDos;
+  if a=62 then
+     if (s1[1]<>' ') then
+       begin
+       {if (RadioGroup2.ItemIndex= 0)THEN }writeln(f1,#12);
+                                    {else writeln(f1,'');}
+       b:=b+1;
+       sDos:='Стр. N '+IntToStr(b);
+       if (RadioGroup2.ItemIndex= 0)THEN perevod;
+       //Perevod;
+       writeln(f1,sDos);
+       Shapka;
+       sDos:=s1;
+       if (RadioGroup2.ItemIndex= 0)THEN perevod;
+       //Perevod;
+       writeln(f1,sDos);
+       a:=6;
+       goto a1;
+       end;
+  sDos:=s1;
+//  Perevod;
+  if (RadioGroup2.ItemIndex= 0)THEN perevod;
+  writeln(f1,sDos);
+  if a=62 then
+     begin
+     a:=5;
+     b:=b+1;
+     readln(f,sDos);
+       if (RadioGroup2.ItemIndex= 0)THEN perevod;
+     //Perevod;
+     s1:=sDos;
+     readln(f,s);
+     if s='' then
+             writeln(f1,sDos)
+             else
+             begin
+             {if (RadioGroup2.ItemIndex= 0)THEN} writeln(f1,#12);
+                                         {else writeln(f1,'');  }
+            // writeln(f1,#12{'+'});
+             sDos:='Стр. N '+IntToStr(b);
+       if (RadioGroup2.ItemIndex= 0)THEN perevod;
+             //Perevod;
+             writeln(f1,sDos);
+             Shapka;
+             sDos:=s1;
+       if (RadioGroup2.ItemIndex= 0)THEN perevod;
+             //Perevod;
+             if sDos<>'' then writeln(f1,sDos);
+             sDos:=s;
+        if (RadioGroup2.ItemIndex= 0)THEN perevod;
+            //Perevod;
+             writeln(f1,sDos);
+             a:=7;
+             goto a1;
+             end;
+     {if (RadioGroup2.ItemIndex= 0)THEN }writeln(f1,#12);
+                                  {else writeln(f1,'');  }
+     //writeln(f1,#12{'+'});
+     sDos:='Стр. N '+IntToStr(b);
+       if (RadioGroup2.ItemIndex= 0)THEN perevod;
+    //Perevod;
+     writeln(f1,sDos);
+     Shapka;
+a1:  end;
+  end;
+CloseFile(f); Erase(f);
+CloseFile(f1);
+                                // удаление в конце не нужной шапки
+assignfile(f1,'Otchet1.txt');
+reset(f1);
+i:=1;
+while not eof(f1) do          //проверка есть ли лишняя шапка в конце
+  begin
+  readln(f1,s);i:=i+1;
+//  readln(f1,s);i:=i+1;
+//  readln(f1,s1);i:=i+1;
+  end;
+CloseFile(f1);
+if (sDos[1]='='){and(s[1]='')and(s1[1]='')} then
+   begin                         //запись в отчет без лишней шапки
+   assignfile(f1,'Otchet1.txt');
+   reset(f1);
+   assignfile(f,'Otchet.txt');
+   rewrite(f);
+      for j:=1 to i-7 do
+      begin
+      readln(f1,sDos);
+      writeln(f,sDos);
+      end;
+   CloseFile(f);
+   CloseFile(f1);
+   assignfile(f1,'Otchet1.txt');// препис в отчет1
+   rewrite(f1);
+   assignfile(f,'Otchet.txt');
+   reset(f);
+   while not eof(f) do
+     begin
+     readln(f,sDos);
+     writeln(f1,sDos);
+     end;
+   CloseFile(f);erase(f);
+   CloseFile(f1);
+   end;
+end;
+
+Procedure TForm4.Sozdat;
+begin
+FORM5.memo1.clear;
+assignfile(f1,'Otchet.txt');
+rewrite(f1);
+CloseFile(f1);
+
+assignfile(f1,'Otchet.txt');
+append(f1);
+
+if Radiobutton1.checked=true
+   then Napr:=ComboBox1.Text+'.npr'
+   else Napr:='Other.txt';
+ASSIGNfile(F,Napr);
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Ошибка доступа к файлу '+Napr,
+  mtError,[mbOk],0);
+  exit;
+  end;
+readln(f, PAPKA);         // считывание страны для листа пред
+ii:=1; jj:=1;
+while not eof(f) do
+  begin
+  readln(f, s);
+  if length(s)<3 then begin ser[ii]:=s;ii:=ii+1;end //счит серий для бпи
+                 else begin gor[jj]:=s;jj:=jj+1;end;//счит городов для бпи
+  end;
+closefile(f);
+CANCEL:=0;
+ii:=ii-1;jj:=jj-1;
+for x:=1 to jj do
+  begin
+  ind:=gor[x];
+  for y:=1 to ii do
+     BEGIN
+     put:=PAPKA+'\'+ser[y]+'\';
+     if FindFirst(put+'*.txt', faAnyFile, SearchRec) =0 then  Poisk;
+     END;
+if cancel=0 then
+   begin
+     SDOS:=ind+' - нет ни одного НОТАМ.';
+     FORM5.Memo1.Lines.Add(SDOS);
+     //if RadioGroup2.ItemIndex=0 then perevod;
+     //writeln(f1,SDOS);//cancel:=1;
+     //writeln(f1);
+   end;
+   cancel:=0;
+  end;
+
+CloseFile(f1); // закрытие файла отчета
+if checkbox3.checked=true then
+{if FORM5.Memo1.Lines[0]<>'' then }FORM5.Showmodal;
+end;
+
+Procedure TForm4.Pech1;
+begin
+Form10.Show;
+end;
+
+Procedure TForm4.DOS_FILE;            // печать в  файл
+begin
+Sozdat;
+
+Razbiv;   // разбивка на страницы...
+
+assignfile(f1,edit1.text);            // проверка куда записывать
+{$i-}
+rewrite(f1);                          // Сохранение в файл Listpred
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  edit1.text,mtError,[mbOk],0);
+  exit;
+  end;
+assignfile(f,'Otchet1.txt');
+reset(f);                     
+while not eof(f) do
+  begin
+  readln(f,s);
+  writeln(f1,s);
+  end;
+CloseFile(f);erase(f);
+CloseFile(f1);
+button4.caption:='Печать';
+Button4.enabled:=true;
+form3.sound(okk); cursor:=crDefault;
+if RadioGroup2.ItemIndex=2 then
+                           pech1
+                           else
+             MessageDlg('Сохранено в файл: '+edit1.text,mtinformation,[mbOk],0);
+end;
+
+procedure TForm4.Button4Click(Sender: TObject);
+begin
+button4.caption:='Подождите';
+Button4.enabled:=false;
+cursor:=crhourglass;
+{if (RadioGroup2.ItemIndex= 0)OR(RadioGroup2.ItemIndex=1)
+                                    then }DOS_FILE; //если в файл DOS или WIN
+//cursor:=crDefault;
+end;
+
+procedure TForm4.ComboBox3Click(Sender: TObject);
+begin
+IF COMBOBOX3.TEXT='' THEN EXIT;
+form3.sound(okk);
+checkbox2.enabled:=true;
+memo3.Enabled:=true;
+memo3.setfocus;
+if (memo2.text<>'')and(memo3.text<>'') then button10.Enabled:=true;
+end;
+
+procedure TForm4.Memo3KeyPress(Sender: TObject; var Key: Char);
+begin
+checkbox2.enabled:=true;
+if memo2.text<>'' then button10.Enabled:=true;
+Button13.enabled:=true;
+end;
+
+procedure TForm4.Button12Click(Sender: TObject);
+begin
+memo2.clear;
+memo2.setfocus;
+Button12.enabled:=false;
+Button10.enabled:=false;
+end;
+
+procedure TForm4.Button13Click(Sender: TObject);
+begin
+memo3.clear;
+memo3.setfocus;
+Button13.enabled:=false;
+Button10.enabled:=false;
+end;
+
+procedure TForm4.ComboBox4Click(Sender: TObject);
+begin
+IF COMBOBOX4.TEXT='' THEN EXIT;
+form3.sound(okk);
+Memo4.Enabled:=true;
+memo1.Clear;memo4.clear;
+Button2.enabled:=false;
+Button3.enabled:=false;
+Button4.enabled:=false;
+Button1.enabled:=false;
+Button11.enabled:=false;
+Button14.enabled:=false;
+IF (memo4.text<>'')and(memo1.text<>'') then Button2.enabled:=true;
+//IF memo1.text<>''then Button2.enabled:=true;
+memo1.SetFocus;
+end;
+
+procedure TForm4.Memo4KeyPress(Sender: TObject; var Key: Char);
+begin
+Button3.enabled:=false;//true;
+Button4.enabled:=false;//true;
+if memo1.text<>'' then Button2.enabled:=true;
+button14.Enabled:=true;
+end;
+
+procedure TForm4.Button14Click(Sender: TObject);
+begin
+memo4.clear;
+memo4.setfocus;
+button14.Enabled:=false;
+button2.Enabled:=false;
+button3.Enabled:=false;
+button4.Enabled:=false;
+end;
+
+procedure TForm4.Button15Click(Sender: TObject);
+begin
+Form4.Close;
+end;
+
+procedure TForm4.Button3Click(Sender: TObject);
+begin
+Button3.caption:='Подождите';
+Button3.enabled:=false;
+cursor:=crhourglass;
+//Dos_File;
+Sozdat;
+Razbiv;
+assignfile(f1,edit1.text);            // проверка куда записывать
+{$i-}
+rewrite(f1);                          // Сохранение в файл Listpred
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  edit1.text,mtError,[mbOk],0);
+  exit;
+  end;
+assignfile(f,'Otchet1.txt');
+reset(f);                     
+while not eof(f) do
+  begin
+  readln(f,s);
+  writeln(f1,s);
+  end;
+CloseFile(f);erase(f);
+CloseFile(f1);
+button4.caption:='Печать';
+Button4.enabled:=true;
+form3.sound(okk);
+
+Button3.caption:='Просмотр';
+Button3.enabled:=true;
+cursor:=crDefault;
+Form10.Show;
+
+end;
+
+procedure TForm4.CheckBox2Click(Sender: TObject);
+begin
+button10.enabled:=true;
+end;
+
+procedure TForm4.ComboBox5Click(Sender: TObject);
+begin
+IF COMBOBOX5.TEXT='' THEN EXIT;
+form3.sound(okk);
+Memo5.Lines.Add(combobox5.text);
+button16.Enabled:=true;
+end;
+
+procedure TForm4.Memo5KeyPress(Sender: TObject; var Key: Char);
+begin
+button16.enabled:=true;
+end;
+
+procedure TForm4.Button16Click(Sender: TObject);
+begin
+ASSIGNfile(F,'Napom.txt');
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  j:=MessageDlg('Ошибка доступа к файлу: "Napom.txt"!'
+  ,mtwarning,[mbOk,mbcancel],0);
+  exit;
+  end;
+for j:=0 to Memo5.Lines.Count-1 do
+  if j<Memo5.Lines.Count-1 then
+    writeln(f, Memo5.Lines[j])
+    else
+    write(f, Memo5.Lines[j]);
+closefile(f);
+form3.sound(okk);
+MessageDlg('Изменения сохранены!', mtInformation,[mbOk],0);
+Button16.Enabled:=false;
+end;
+
+procedure TForm4.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+kz:=combobox1.Text;
+inde:=combobox1.itemindex;
+end;
+
+
+procedure TForm4.FormDeactivate(Sender: TObject);
+begin
+kz:=combobox1.Text;
+inde:=combobox1.itemindex;
+end;
+
+end.

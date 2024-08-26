@@ -1,0 +1,39 @@
+unit Prosm;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+
+type
+  TForm5 = class(TForm)
+    Memo1: TMemo;
+    Button1: TButton;
+    procedure FormActivate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form5: TForm5;
+
+implementation
+
+{$R *.dfm}
+USES BPI;
+procedure TForm5.FormActivate(Sender: TObject);
+begin
+//memo1.clear;
+//Memo1.Lines.Add(SDOS);
+end;
+
+procedure TForm5.Button1Click(Sender: TObject);
+begin
+form5.Close;
+end;
+
+end.

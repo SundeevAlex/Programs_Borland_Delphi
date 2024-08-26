@@ -1,0 +1,481 @@
+unit Bpi_Pech;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, StdCtrls;
+
+type
+  TForm10 = class(TForm)
+    StringGrid1: TStringGrid;
+    GroupBox1: TGroupBox;
+    ComboBox1: TComboBox;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    Edit4: TEdit;
+    CheckBox1: TCheckBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    procedure Button2Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormSave;
+    procedure Button4Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form10: TForm10;
+
+implementation
+
+{$R *.dfm}
+uses Printers, Notambd, Sv_tabl, Bpi;
+var
+F:textfile;
+sDos:string;
+i,j,sch,SCH1,kakoi:integer;
+
+Procedure gluk;
+var
+xx:integer;
+begin
+if form4.RadioGroup2.ItemIndex=0 then
+  if sDos<>#12 then
+    for xx:=1 to length(sDos) do  // перевод из доса в винду
+      if (ord(sDos[xx])>127)and(ord(sDos[xx])<176) then
+                           sDos[xx]:=(chr(ord((sDos[xx]))+64))
+                      else
+      if (ord(sDos[xx])>223)and(ord(sDos[xx])<240) then
+                           sDos[xx]:=(chr(ord((sDos[xx]))+16))
+                      else
+                           sDos[xx]:=(chr(ord((sDos[xx]))));
+{  for xx:=1 to length(sDos) do
+  if (ord(sDos[xx])>127)and(ord(sDos[xx])<160) then sDos[xx]:=(chr(ord((sDos[xx]))+64))
+                      else sDos[xx]:=(chr(ord((sDos[xx]))));}
+end;
+
+procedure TForm10.Button2Click(Sender: TObject);
+begin
+form10.Close;
+end;
+
+procedure TForm10.FormActivate(Sender: TObject);
+lABEL a1,a2;
+begin
+form3.sound(okk);
+button3.Enabled:=false;
+button4.Enabled:=false;
+if form4.RadioGroup2.ItemIndex=2 then button1.Enabled:=true
+                                 else button1.Enabled:=false;
+assignfile(f,'Shrift/Shrift.txt');   // считывание шрифтов
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  'Shrift/Shrift.txt'+#13+'(файл с наименованиями шрифтов)'+#13+
+  'Пример:'+#13+
+  '1'+#13+
+  'Courier New'+#13+
+  'Arial',mtError,[mbOk],0);
+  exit;
+  end;
+  s:='';
+readln(f,s);
+ComboBox1.clear;
+while not eof(f) do
+  begin
+  readln(f,sDos);
+  ComboBox1.Items.Add(sDos);
+  end;
+closefile(f);
+ComboBox1.itemindex:=strtoint(s);
+
+assignfile(f,'Shrift/Other.txt');   // считывание размера шрифтов
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  'Shrift/Other.txt'+#13+'(файл с размером шрифта,'+#13+
+  'отступом сверху и слева)'+#13+
+  'Пример:'+#13+
+  '12'+#13+
+  '1'+#13+
+  '0,5'+#13+
+  '0,3',mtError,[mbOk],0);
+  exit;
+  end;
+readln(f,sDos);
+edit3.Text:=sDos;
+readln(f,sDos);
+i:=strtoint(sDos);
+if i=1 then checkbox1.checked:=true else checkbox1.checked:=false;
+readln(f,sDos);
+edit2.Text:=sDos;
+readln(f,sDos);
+edit4.Text:=sDos;
+closefile(f);
+                          // ВЫВОД НА ЭКРАН ПЕРВОЙ СТРАНИЦЫ БПИ
+kakoi:=1;
+sch:=1;
+
+assignfile(f,form4.edit1.text);
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  form4.edit1.text,mtError,[mbOk],0);
+  exit;
+  end;    
+readln(f,sDos);
+{if sDos[1]='‘' then begin sDos[1]:='С';sDos[2]:='т';sDos[3]:='р';end else }gluk;
+edit1.Text:=sDos;
+for i:=0 to 66 do
+  for j:=0 to 2 do StringGrid1.Cells[j,i]:='';
+with StringGrid1 do Cells[0,0]:=edit1.Text;
+i:=0;j:=1;
+while not eof(f) do
+  begin
+  S:='';
+  readln(f,sDos);
+  {if sDos=''
+  then sDos:='' else }gluk;
+  if sDos=#12 then goto a2;
+  if sDos<>'' then for i:=1 to 16 do
+                                begin
+                                if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                StringGrid1.Cells[0,j]:=StringGrid1.Cells[0,j]+sDos[i];
+                                end;
+  if sDos<>'' then for i:=18 to 69 do
+                                 begin
+                                 S:=S+sDos[i];
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[1,j]:=StringGrid1.Cells[1,j]+sDos[i];
+                                 end;
+  if sDos<>'' then for i:=71 to 78 do
+                                 begin
+                                 S:=S+sDos[i];
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[2,j]:=StringGrid1.Cells[2,j]+sDos[i];
+                                 end;
+a2:j:=j+1;
+  if sDos=#12 then begin sch:=sch+1;goto a1;end;
+  end;
+a1:
+while not eof(f) do
+  begin
+  readln(f,sDos);
+  j:=j+1;
+  if sDos=#12 then sch:=sch+1;
+  end;
+closefile(f);
+if sch>1 then button4.Enabled:=true else button4.Enabled:=false;
+stringGrid1.SetFocus;
+end;
+
+procedure TForm10.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+form10.formsave;
+end;
+
+procedure TForm10.FormSave;
+begin
+assignfile(f,'Shrift/Shrift.txt');   // запись шрифтов
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  'Shrift/Shrift.txt'+#13+'(файл с наименованиями шрифтов)'+#13+
+  'Пример:'+#13+
+  '1'+#13+
+  'Courier New'+#13+
+  'Arial',mtError,[mbOk],0);
+  exit;
+  end;
+writeln(f,ComboBox1.itemindex);
+for i:=0 to ComboBox1.Items.Count-1 do  writeln(f, ComboBox1.Items[i]);
+closefile(f);
+
+assignfile(f,'Shrift/Other.txt');   // запись размера шрифтов
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  'Shrift/Other.txt'+#13+'(файл с размером шрифта,'+#13+
+  'отступом сверху и слева)'+#13+
+  'Пример:'+#13+
+  '12'+#13+
+  '1'+#13+
+  '0,5'+#13+
+  '0,3',mtError,[mbOk],0);
+  exit;
+  end;
+writeln(f,edit3.Text);
+if checkbox1.checked=true then writeln(f,'1') else writeln(f,'0');
+s:=edit2.Text;
+for i:=1 to length(s) do if s[i]='.' then s[i]:=',';
+edit2.Text:=s;
+writeln(f,{edit2.Text}s);
+s:=edit4.Text;
+for i:=1 to length(s) do if s[i]='.' then s[i]:=',';
+edit4.Text:=s;
+writeln(f,{edit4.Text}s);
+//writeln(f,edit2.Text);
+//writeln(f,edit4.Text);
+closefile(f);
+end;
+
+procedure TForm10.Button4Click(Sender: TObject);
+Label a2;
+begin
+//следующая стр
+kakoi:=kakoi+1;
+if (kakoi<sch) then button4.Enabled:=true else button4.Enabled:=false;
+if (kakoi<>1) then button3.Enabled:=true else button3.Enabled:=false;
+for i:=0 to 66 do
+  for j:=0 to 2 do StringGrid1.Cells[j,i]:='';
+assignfile(f,form4.edit1.text);
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  form4.edit1.text,mtError,[mbOk],0);
+  exit;
+  end;
+i:=1;
+repeat
+readln(f,sDos);
+gluk;
+if sDos=#12 then i:=i+1;
+until i=kakoi;
+readln(f,sDos);
+gluk;
+edit1.Text:=sDos;
+with StringGrid1 do Cells[0,0]:=edit1.Text;
+j:=1;
+repeat
+readln(f,sDos);
+gluk;
+  if sDos=#12 then goto a2;
+  if sDos<>'' then for i:=1 to 16 do
+                                begin
+                                if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                StringGrid1.Cells[0,j]:=StringGrid1.Cells[0,j]+sDos[i];
+                                end;
+  if sDos<>'' then for i:=18 to 69 do
+                                 begin
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[1,j]:=StringGrid1.Cells[1,j]+sDos[i];
+                                 end;
+  if sDos<>'' then for i:=71 to 78 do
+                                 begin
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[2,j]:=StringGrid1.Cells[2,j]+sDos[i];
+                                 end;
+a2:j:=j+1;
+until (sDos=#12)or(eof(f));
+closefile(f);
+stringGrid1.SetFocus;
+end;
+
+procedure TForm10.Button3Click(Sender: TObject);
+label a2;
+begin
+//предыдущая стр
+kakoi:=kakoi-1;
+if (kakoi<sch) then button4.Enabled:=true else button4.Enabled:=false;
+if (kakoi>1) then button3.Enabled:=true else button3.Enabled:=false;
+for i:=0 to 66 do
+  for j:=0 to 2 do StringGrid1.Cells[j,i]:='';
+assignfile(f,form4.edit1.text);
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  form4.edit1.text,mtError,[mbOk],0);
+  exit;
+  end;
+i:=1;
+repeat
+readln(f,sDos);
+if sDos=#12 then i:=i+1;
+until i=kakoi;
+IF sDos=#12 then readln(f,sDos);
+gluk;
+edit1.Text:=sDos;
+with StringGrid1 do Cells[0,0]:=edit1.Text;
+j:=1;
+repeat
+readln(f,sDos);
+gluk;
+  if sDos=#12 then goto a2;
+  if sDos<>'' then for i:=1 to 16 do
+                                begin
+                                if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                StringGrid1.Cells[0,j]:=StringGrid1.Cells[0,j]+sDos[i];
+                                end;
+  if sDos<>'' then for i:=18 to 69 do
+                                 begin
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[1,j]:=StringGrid1.Cells[1,j]+sDos[i];
+                                 end;
+  if sDos<>'' then for i:=71 to 78 do
+                                 begin
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[2,j]:=StringGrid1.Cells[2,j]+sDos[i];
+                                 end;
+a2:j:=j+1;
+until (sDos=#12)or(eof(f));
+closefile(f);
+stringGrid1.SetFocus;
+end;
+
+procedure TForm10.Button1Click(Sender: TObject);
+label a1,a2,a3,a4;
+var
+dpix, dpiY : integer; // разрешение принтера по X и У
+kx,ky,LEFT_MARGIN,TOP_MARGIN: real; // коэф. пересчета координат экрана
+// в координаты принтера по X и У
+// таблица
+p: array[0..3] of integer; // позиции колонок
+x1,y1,x2,y2: integer; // границы таблицы
+px,py: integer; // указатель точки вывода
+i,j: integer;
+begin
+button1.Enabled:=false;
+button3.Enabled:=false;
+formsave;
+//Form10.Formactivate(Sender);
+LEFT_MARGIN:=strtofloat(edit4.text);
+TOP_MARGIN:=strtofloat(edit2.text);
+kakoi:=0;
+{ * * * }
+a1:
+kakoi:=kakoi+1;
+if (kakoi>sch) then goto a3;
+if (kakoi<sch) then button4.Enabled:=true else button4.Enabled:=false;
+if (kakoi<>1) then button3.Enabled:=true else button3.Enabled:=false;
+for i:=0 to 66 do
+  for j:=0 to 2 do StringGrid1.Cells[j,i]:='';
+assignfile(f,form4.edit1.text);
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  form4.edit1.text,mtError,[mbOk],0);
+  exit;
+  end;
+i:=1;
+repeat
+readln(f,sDos);
+if sDos=#12 then i:=i+1;
+until i=kakoi;
+IF kakoi<>1 then begin readln(f,sDos);gluk;end;
+edit1.Text:=sDos;
+with StringGrid1 do Cells[0,0]:=edit1.Text;
+j:=1;
+repeat
+readln(f,sDos);
+gluk;
+  if sDos=#12 then goto a2;
+  if sDos<>'' then for i:=1 to 16 do
+                                begin
+                                if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                StringGrid1.Cells[0,j]:=StringGrid1.Cells[0,j]+sDos[i];
+                                end;
+  if sDos<>'' then for i:=18 to 69 do
+                                 begin
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[1,j]:=StringGrid1.Cells[1,j]+sDos[i];
+                                 end;
+  if sDos<>'' then for i:=71 to 78 do
+                                 begin
+                                 if sDos[i]='' then begin StringGrid1.Cells[2,j]:='';goto a2;end;
+                                 StringGrid1.Cells[2,j]:=StringGrid1.Cells[2,j]+sDos[i];
+                                 end;
+a2:j:=j+1;
+until (sDos=#12)or(eof(f));
+
+closefile(f);
+form3.sound(okk);
+i:=messagedlg('НАПЕЧАТАТЬ ЭТОТ ЛИСТ ?',mtConfirmation,[mbOk,mbIgnore,mbCancel],0);
+if i=2 then begin button1.Enabled:=true;exit;end;
+if i=5 then goto a4;
+{------------------------------ сама печать --------------------------------}
+dpiX := GetDeviceCaps(Printer.handle,LOGPIXELSX);
+dpiY := GetDeviceCaps(Printer.handle,LOGPIXELSY);
+kx:=dpiX/96;
+ky:=dpiY/96;
+px := Round(LEFT_MARGIN / 2.54 * dpiX);
+py := Round(TOP_MARGIN / 2.54 * dpiY);
+p[0] := px;
+for i:=1 to 3 do
+begin
+p[i]:=p[i-1] + Round(StringGrid1.ColWidths[i-1]* kx) ;
+end;
+with Printer do
+begin
+BeginDoc; // открыть печать
+Canvas.Font.Name:=combobox1.text;
+i:=strtoint(edit3.text);
+Canvas.Font.Size:=i;
+if checkbox1.checked=true then Canvas.Font.Style:=[fsBold]
+                          else Canvas.Font.Style:=[];
+
+// таблица — содержимое StringGridl
+py := py+ Round(Edit1.Font.Size * 2 * ky) ;x1 := px; y1 := py; // левый верхний угол таблицы
+x2 := p[3] + Round(StringGrid1.ColWidths[3]* kx);
+y2 := py +
+Round(StringGrid1.RowCount *
+StringGrid1.RowHeights[1] * ky);
+for j:=0 to StringGrid1.RowCount do
+ begin
+ // строки таблицы
+ for i:=0 to StringGrid1.ColCount do Canvas.TextOut(P[i],py,StringGrid1.Cells[i,j]);
+ py:=py+ Round(StringGrid1.RowHeights[j]* ky);
+ end;
+EndDoc; // закрыть печать
+if button4.enabled=false then form10.close;
+end;
+a4:
+if (kakoi<=sch) then goto a1;
+a3:
+button1.Enabled:=true;
+end;
+
+end.

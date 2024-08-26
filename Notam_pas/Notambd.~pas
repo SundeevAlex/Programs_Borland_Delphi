@@ -1,0 +1,2194 @@
+unit Notambd;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, FileCtrl, MPlayer;
+
+type
+  TForm3 = class(TForm)
+    Label1: TLabel;
+    ComboBox1: TComboBox;
+    Label2: TLabel;
+    Edit1: TEdit;
+    Label3: TLabel;
+    Edit2: TEdit;
+    Label4: TLabel;
+    Edit3: TEdit;
+    Label5: TLabel;
+    Edit4: TEdit;
+    Label6: TLabel;
+    Edit5: TEdit;
+    Label7: TLabel;
+    Edit6: TEdit;
+    Edit7: TEdit;
+    Label8: TLabel;
+    Edit8: TEdit;
+    Edit9: TEdit;
+    Edit10: TEdit;
+    Label9: TLabel;
+    Memo1: TMemo;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    RadioGroup1: TRadioGroup;
+    Button6: TButton;
+    Button7: TButton;
+    Button8: TButton;
+    Label10: TLabel;
+    Button9: TButton;
+    Button10: TButton;
+    Button11: TButton;
+    Button12: TButton;
+    RadioGroup2: TRadioGroup;
+    Edit11: TEdit;
+    Memo2: TMemo;
+    Button13: TButton;
+    Button14: TButton;
+    Button15: TButton;
+    Button16: TButton;
+    Button17: TButton;
+    Button18: TButton;
+    MediaPlayer1: TMediaPlayer;
+    Label11: TLabel;
+    procedure Button18Click(Sender: TObject);
+    procedure Button15Click(Sender: TObject);
+    procedure Memo2KeyPress(Sender: TObject; var Key: Char);
+    procedure Button13Click(Sender: TObject);
+    procedure Button17Click(Sender: TObject);
+    procedure Button16Click(Sender: TObject);
+    procedure Button14Click(Sender: TObject);
+    procedure Edit11KeyPress(Sender: TObject; var Key: Char);
+    procedure RadioGroup2Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
+    procedure Button10Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Memo1KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit10KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit9KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit8KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit7KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit5KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit6KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit4KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit3KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit2KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBox1Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    Procedure DOS_FILE;
+    Procedure WIN_FILE;
+    Procedure PECH;
+    Procedure PEREVOD;
+    procedure Sound(Smus:string);
+    PROCEDURE schit_ad; 
+    procedure proverka;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    Procedure nado;  
+    Procedure nado1;  
+    Procedure poisk1;
+    procedure Memo1KeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure Memo1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Edit1Click(Sender: TObject);
+    procedure Edit2Click(Sender: TObject);
+    procedure Edit3Click(Sender: TObject);
+    procedure Edit4Click(Sender: TObject);
+    procedure Edit5Click(Sender: TObject);
+    procedure Edit6Click(Sender: TObject);
+    procedure Edit7Click(Sender: TObject);
+    procedure Edit8Click(Sender: TObject);
+    procedure Edit9Click(Sender: TObject);
+    procedure Edit10Click(Sender: TObject);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+Const
+Imja='Podpech.txt';
+err='error.wav';       //  звук для ошибки
+okk='ok1.wav';       //  звук если ОК
+star='start.wav';
+var
+  Form3: TForm3;
+  Sdos:string[80];
+  sDO:string[16];
+  sAD:string[16];
+  s:string[40];
+  s1:string;
+  buf:string[12];
+  ss:string[4];
+  country : string[15]; // наименование страны
+  ad : string[20];      // аэродром
+  Num : string[5];      // номер НОТАМА
+  Year: string[2];      // год НОТАМА
+ Num1 : string[5];      // номер НОТАМА'
+ Year1: string[2];      // год НОТАМА'
+  P_Q: string[4];       // поле Щ
+  P_A: string[4];       // поле А
+  P_B: string[6];       // поле Б
+  P_Bt: string[4];      // поле Б время
+  P_C: string[6];       // поле Ц
+  P_Ct: string[4];      // поле Ц время
+  P_Ct1: string[4];     // поле Ц РАСЧ или ПОСТ
+  P_E: string[80];      // поле Е (текст НОТАМА)
+  Mas:array[1..10000] of string[12];
+  q:string[1];
+  put,put1:string;
+  Path: string;
+  F,F1,f2,f3:TEXTFILE;
+  yes,yes1,i,j,j1,ii1,jj1,
+  KOL,TEC,ku,schet:integer;
+  SearchRec: TSearchRec; // структура, содержащая информацию о файле
+  gh:string[1];
+  Naprz,papkaz:string;
+  SERz:ARRAY [1..20] OF STRING[1];//ДЛЯ ЗАПОМИНАНИЯ СЕРИЙ ДЛЯ ФОРМИР БПИ
+  GORz:ARRAY [1..200] OF STRING[4];//ДЛЯ ЗАПОМИНАНИЯ ИНДЕКСОВ ДЛЯ ФОРМИР БПИ
+  Indz:string[4];
+//    soun:integer;
+
+implementation
+
+uses Unit1,printers{,n_podpech,bpi}, bd_podpech;
+
+{$R *.dfm}
+function GetPath(mes: string):string;// для обзора папок
+var
+Root: string; // корневой каталог
+pwRoot : PWideChar;
+Dir: string;
+begin
+Root := '';
+GetMem(pwRoot, (Length(Root)+1) * 2);
+pwRoot := StringToWideChar(Root, pwRoot, MAX_PATH*2);
+if selectDirectory(mes, pwRoot, Dir) then
+if length(Dir) =2 then GetPath := Dir+'\'
+                  else GetPath := Dir
+                  else GetPath := '';
+end;
+
+procedure TForm3.Sound(Smus:string);     
+begin
+{-------------------------- ВОСПРОИЗВЕДЕНИЕ ЗВУКА -----------------------------}
+{}//{$i-}
+  if soun=1 then
+{}with MediaPlayer1 do
+{}  if FindFirst(Smus, faAnyFile, SearchRec) =0 then
+{}  begin
+{}  FileName:=Smus;
+{} // {$i+}
+{}  //if IOResult = 0 then exit;
+{}  Open;
+{}  Play;
+{}  end;
+{---------------------------------  КОНЕЦ  ------------------------------------}
+end;
+
+PROCEDURE TForm3.schit_ad;// считывание аэродрома из russia.txt
+label a1;
+BEGIN
+assignFILE(f,'Russia.txt');
+ {$i-}
+ reset(f);
+ {$i+}
+ if IOResult <> 0 then begin
+ Sound(err);
+ MessageDlg('Отсутствует файл "Russia.txt"',
+ mtError,[mbOk],0); ad:=P_A;{exit;}goto a1; end;
+ while not eof(f) do
+  begin
+  readln(f,s);
+  ss:=s;
+  delete(s,1,5);
+  if ss=P_A then
+          begin
+          ad:=s;
+          closefile(f);
+          goto a1;
+          end;
+  end;
+ ad:=P_A;
+ closefile(f);
+ a1:
+//   yes:=1;
+END;
+
+
+procedure TForm3.FormActivate(Sender: TObject);
+label a1;
+begin
+ComboBox1.setfocus;
+//button14.Enabled:=true;
+//radiogroup2.Enabled:=true;
+//edit11.Enabled:=true;
+AssignFile(f,'Dest.txt');   //считывание настроек проги
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  sound(err);
+  MessageDlg('Не могу найти файл: Dest.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'C:\Refis\'+Imja+#13+'2',
+  mtError,[mbOk],0);
+  exit;
+  end;
+readln(f,s1);
+edit11.Text:=s1;
+readln(f,s1);
+if (s1<>'0')and(s1<>'1')and(s1<>'2') then s1:='0';
+j:=strtoint(s1);
+RadioGroup2.ItemIndex:=j;
+closefile(f);
+button14.Enabled:=false;
+//button16.Enabled:=false;
+//button17.Enabled:=false;
+//button13.Enabled:=false;
+//radiogroup2.Enabled:=false;
+//edit11.Enabled:=false;
+//memo2.enabled:=false;
+
+// если страны считывали то пропустить
+if comboBox1.Items[1]<>'' then goto a1;
+
+ASSIGNfile(F,'Country.txt');// считывание стран из файла
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then begin
+sound(err);
+MessageDlg('Отсутствует файл "Country.txt"'+
+#13+'Примерное содержание файла:'+#13+
+'РОССИЯ+'+#13+
+'КИТАЙ'+#13+#13+
+'занак "+" обозначает, что в файле Russia.txt'+#13+
+'для этой страны имеются четырехбуквенные индексы'+#13+
+'с расшифровкой. Для автоматического раскодирования.',
+mtError,[mbOk],0); exit{form1.close}; end;
+while not eof(f) do
+  begin
+  s:='';
+  readln(f,country);
+  ComboBox1.Items.Add(country);
+  end;
+closefile(f);
+
+a1:
+end;
+
+procedure TForm3.ComboBox1Click(Sender: TObject);
+label a1;
+begin
+label11.Caption:='';
+IF COMBOBOX1.TEXT='' THEN EXIT;
+if (BUTTON1.Enabled=true)and(button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+A1:
+ sound(OKK);
+ yes1:=0;// 0-чисто запись, 1-ротация 
+ yes:=1; // надо ли вводить город
+ Edit1.Text:=''; // сброс всех полей при выборе страны
+ Edit1.Enabled:=false;
+ Edit2.Text:='';
+ Edit2.Enabled:=false;
+ Edit3.Text:='';
+ Edit3.Enabled:=false;
+ Edit4.Text:='';
+ Edit4.Enabled:=false;
+ Edit5.Text:='';
+ Edit5.Enabled:=false;
+ Edit6.Text:='';
+ Edit6.Enabled:=false;
+ Edit7.Text:='';
+ Edit7.Enabled:=false;
+ Edit8.Text:='';
+ Edit8.Enabled:=false;
+ Edit9.Text:='';
+ Edit9.Enabled:=false;
+ Edit10.Text:='';
+ Edit10.Enabled:=false;
+ //Memo1.Text:='';
+ Memo1.Clear;
+ Memo1.Enabled:=false;
+ Button1.Enabled:=false;Button2.Enabled:=false;
+ Button3.Enabled:=false;Button4.Enabled:=false;
+ Button5.Enabled:=false;Button6.Enabled:=false;
+ Button7.Enabled:=false;
+ Button8.Enabled:=false; Button11.Enabled:=true;
+ Button9.Enabled:=false;Button10.Enabled:=false;
+ Label10.Caption:='';
+ country:=ComboBox1.Text;
+ for i:=1 to length(country) do if country[i]='+' then
+                                     begin
+                                     delete(country,i,1);
+                                     yes:=0;// не надо вводить а/д
+                                     end;
+ if yes=1 then begin
+               Edit2.Enabled:=true;
+               Edit1.Enabled:=true;
+               Edit1.setfocus;
+               end;
+
+ if yes=0 then
+          begin
+          //SCHIT_AD;
+          Edit2.Enabled:=true;
+          Edit2.setfocus;
+          end;
+ end;
+
+procedure tform3.proverka; //провека всех полей на правильность ввода
+begin
+if (edit1.text='')or(edit1.text[1]=' ') then
+   begin
+   form3.Sound(err);
+   edit1.setfocus;
+   messagedlg('Ошибка в поле: А\д',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if length(edit2.text)<>5 then
+   begin
+   form3.Sound(err);
+   edit2.setfocus;
+   messagedlg('Ошибка в поле: Номер'+#13+edit2.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if length(edit3.text)<>2 then
+   begin
+   form3.Sound(err);
+   edit3.setfocus;
+   messagedlg('Ошибка в поле: Год'+#13+edit3.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if length(edit4.text)<>4 then
+   begin
+   form3.Sound(err);
+   edit4.setfocus;
+   messagedlg('Ошибка в поле: Щ'+#13+edit4.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if length(edit5.text)<>4 then
+   begin
+   form3.Sound(err);
+   edit5.setfocus;
+   messagedlg('Ошибка в поле: А'+#13+edit5.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if length(edit6.text)<>6 then
+   begin
+   form3.Sound(err);
+   edit6.setfocus;
+   messagedlg('Ошибка в поле: Б (дата)'+#13+edit6.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if length(edit7.text)<>4 then
+   begin
+   form3.Sound(err);
+   edit7.setfocus;
+   messagedlg('Ошибка в поле: Б (время)'+#13+edit7.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if (length(edit8.text)<>4)and(length(edit8.text)<>6) then
+   begin
+   form3.Sound(err);
+   edit8.setfocus;
+   messagedlg('Ошибка в поле: Ц (дата)'+#13+edit8.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if (length(edit8.text)=4)and((edit9.text<>'')or(edit10.text<>'')) then
+   begin
+   form3.Sound(err);
+   edit8.setfocus;
+   messagedlg('Ошибка в поле: Ц (дата)'+#13+edit8.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if (length(edit8.text)=6)and(length(edit9.text)<>4)and(edit8.Text[5]<>' ') then
+   begin
+   form3.Sound(err);
+   edit9.setfocus;
+   messagedlg('Ошибка в поле: Ц (время)'+#13+edit9.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+if (length(edit8.text)=6)and(length(edit9.text)=4)and(length(edit10.text)<>4)and
+(edit10.text<>'') then
+   begin
+   form3.Sound(err);
+   edit10.setfocus;
+   messagedlg('Ошибка в поле: Ц (время)'+#13+edit10.Text+' !',mterror,[mbok],0);
+   gh:='0';exit;
+   end;
+end;
+
+procedure TForm3.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+label11.Caption:='';
+Button8.Enabled:=true; Button2.Enabled:=false;
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+case Key of     // ввод аэродрома
+'а'..'я': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'a'..'z': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+#13 : if edit1.text<>'' then BEGIN sound(okk);edit2.setfocus;end;
+end;
+edit2.Enabled:=true;
+end;
+
+procedure TForm3.Edit2KeyPress(Sender: TObject; var Key: Char);
+begin        // ввод номера НОТАМА
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+Button8.Enabled:=true;Button2.Enabled:=false;
+edit3.enabled:=true;Button3.Enabled:=TRUE;Button4.Enabled:=TRUE;
+Button5.Enabled:=TRUE;
+if length(edit2.Text)<1 then  //первая вводится только буква
+case Key of
+'а'..'я': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'А'..'Я': ;
+#8 : ;
+#13 : begin
+      if length(edit2.Text)<4 then Edit2.setfocus;
+      sound(okk);
+      exit;
+      end;
+else Key :=Chr(0);
+end;
+if length(edit2.Text)>0 then // далее вводятся цифры
+case Key of
+'0'..'9':;
+#8 : ;
+#13 : begin
+      if length(edit2.Text)=5 then begin Edit3.setfocus;end;
+      if length(edit2.Text)<4 then Edit2.setfocus;
+      sound(okk);
+      exit;
+      end;
+else Key :=Chr(0);
+end;
+
+IF KEY<>#8 THEN if length(edit2.Text)=4 then BEGIN sound(okk);Edit3.setfocus;end;
+end;
+
+procedure TForm3.Edit3KeyPress(Sender: TObject; var Key: Char);
+begin          // ввод года
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true;Button2.Enabled:=false;
+s:=edit2.Text;
+if length(edit2.Text)<>5 then begin
+sound(err);
+messagedlg('Неверно введен номер'+#13+'НОТАМА: '+s+' !',mterror,[mbok],0);
+key:=chr(0);edit3.Text:=''; edit2.Text:='';
+edit3.Enabled:=false;Edit2.setfocus;
+exit;
+end;
+
+Button3.Enabled:=TRUE;Button4.Enabled:=true;
+Button5.Enabled:=true;{Button6.Enabled:=true;
+Button7.Enabled:=true; }
+
+edit4.enabled:=true;
+case Key of
+'0'..'9':;
+#8 : ;
+#13 : begin
+      sound(okk);
+      if length(edit3.Text)<2 then begin Edit3.setfocus;exit;end;
+      if length(edit3.Text)=2 then begin Edit4.setfocus;exit;end;
+      end;
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit3.Text)=1 then BEGIN sound(okk);Edit4.setfocus;end;
+end;
+
+procedure TForm3.Edit4KeyPress(Sender: TObject; var Key: Char);
+begin       // ввод поле Щ
+label11.Caption:='';
+                      // подсчет количества НОТАМ
+KOL:=0; TEC:=1;
+q:=edit2.Text;
+if FindFirst(country+'\'+q+'\'+'*.txt', faAnyFile, SearchRec) =0 then
+  begin
+  KOL:=KOL+1;
+  mas[kol]:=SearchRec.Name;
+  while (FindNext(SearchRec) = 0) do  begin
+  KOL:=KOL+1; mas[kol]:=SearchRec.Name;end;
+  end;
+  tec:=kol+1;          // конец подсчета
+  Label10.Caption:='Всего НОТАМ серии '+q+': '+IntToStr(KOL)+
+  ' / Текущий: добавление';
+
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true; Button2.Enabled:=false;
+s:=edit3.Text;
+if length(s)<>2 then begin
+sound(err);
+messagedlg('Неверно введен год'+#13+'НОТАМА: '+s+' !',mterror,[mbok],0);
+key:=chr(0);edit4.Text:=''; edit3.Text:='';
+edit4.Enabled:=false;Edit3.setfocus;
+Button3.Enabled:=false;Button4.Enabled:=false;
+Button5.Enabled:=false;Button6.Enabled:=false;
+Button7.Enabled:=false;
+exit;
+end;
+
+edit5.enabled:=true;
+case Key of
+'а'..'я':  begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'А'..'Я': ;
+'a'..'z': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'A'..'Z': ;
+#8 : ;
+#13 : begin
+      if length(edit4.Text)=4 then Edit5.setfocus;
+      if length(edit4.Text)<4 then Edit4.setfocus;
+      sound(okk);
+      exit;
+      end;
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit4.Text)=3 then BEGIN sound(okk);Edit5.setfocus;end;
+end;
+
+procedure TForm3.Edit5KeyPress(Sender: TObject; var Key: Char);
+begin             // ввод в поле А)
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true; Button2.Enabled:=false;
+s:=edit4.Text;
+if length(s)<>4 then begin
+sound(err);
+messagedlg('Неверно введено'+#13+'поле Щ) '+s+' !',mterror,[mbok],0);
+key:=chr(0);edit5.Text:=''; edit4.Text:='';
+edit5.Enabled:=false;Edit4.setfocus;
+exit;
+end;
+edit6.enabled:=true;
+case Key of
+'а'..'я': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'А'..'Я': ;
+'a'..'z': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'A'..'Z': ;
+#8 : ;
+#13 : begin
+      if length(edit5.Text)=4 then
+      begin
+      Edit6.setfocus;
+     // если РОССИЯ... то ищет расшифровку
+     if yes=0 then begin
+  //     EDIT5.Text:=EDIT5.Text+KEY;KEY:=CHR(0);KEY:=CHR(0);
+     p_a:=EDIT5.Text;
+     edit1.enabled:=true;
+     SCHIT_AD;
+     edit1.text:=ad;
+     end;
+      end;
+      if length(edit5.Text)<4 then Edit5.setfocus;
+      sound(okk);
+      exit;
+      end;
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit5.Text)=3 then
+  BEGIN
+  sound(okk);Edit6.setfocus;
+       // если РОССИЯ... то ищет расшифровку
+       if yes=0 then begin
+       EDIT5.Text:=EDIT5.Text+KEY;KEY:=CHR(0);
+       p_a:=EDIT5.Text;
+       edit1.enabled:=true;
+       SCHIT_AD;
+       edit1.text:=ad;
+       end;
+  end;
+end;
+
+procedure TForm3.Edit6KeyPress(Sender: TObject; var Key: Char);
+label a1;
+begin           // ввод в поле Б)
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true;Button2.Enabled:=false;
+//P_A:=edit5.Text;
+if length({p_a}edit5.Text)<>4 then begin
+sound(err);
+messagedlg('Неверно введено'+#13+'поле А) '+P_A+' !',mterror,[mbok],0);
+key:=chr(0);edit6.Text:=''; edit5.Text:='';
+edit6.Enabled:=false;Edit5.setfocus;
+exit;
+end;
+  // если РОССИЯ... то ищет расшифровку
+//  if yes=0 then begin
+//   edit1.enabled:=true;
+//   SCHIT_AD;
+//   edit1.text:=ad;
+//   end;
+
+edit7.enabled:=true;
+case Key of
+'0'..'9': ;
+#8 : ;
+#13 : begin
+      if length(edit6.Text)=6 then Edit7.setfocus;
+      if length(edit6.Text)<6 then Edit6.setfocus;
+      sound(okk);
+      exit;
+      end;
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit6.Text)=5 then BEGIN sound(okk);Edit7.setfocus;end;
+end;
+
+procedure TForm3.Edit7KeyPress(Sender: TObject; var Key: Char);
+begin             // ввод поле Б) время
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true; Button2.Enabled:=false;
+s:=edit6.Text;
+if length(s)<>6 then begin
+sound(err);
+messagedlg('Неверно введено'+#13+'поле Б) '+s+' !',mterror,[mbok],0);
+key:=chr(0);edit7.Text:=''; edit6.Text:='';
+edit7.Enabled:=false;Edit6.setfocus;
+exit;
+end;
+
+edit8.enabled:=true;
+case Key of
+'0'..'9': ;
+#8 : ;
+#13 : begin
+      if length(edit7.Text)=4 then Edit8.setfocus;
+      if length(edit7.Text)<4 then Edit7.setfocus;
+      sound(okk);
+      exit;
+      end;
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit7.Text)=3 then BEGIN sound(okk);Edit8.setfocus;end;
+
+end;
+
+procedure TForm3.Edit8KeyPress(Sender: TObject; var Key: Char);
+begin          // ввод в поле Ц)
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true;Button2.Enabled:=false;
+s:=edit7.Text;
+if length(s)<>4 then begin
+sound(err);
+messagedlg('Неверно введено'+#13+'поле Б) время '+s+' !',mterror,[mbok],0);
+key:=chr(0);edit8.Text:=''; edit7.Text:='';
+edit8.Enabled:=false;Edit7.setfocus;
+exit;
+end;
+
+Memo1.enabled:=true;
+edit9.enabled:=true;
+case Key of
+'а'..'я': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'А'..'Я': ;
+'0'..'9': ;
+#8 : ;
+#13 :BEGIN sound(okk);EDIT9.SetFocus;end
+{begin
+      if length(edit8.Text)<6 then Edit8.setfocus;
+      exit;
+      end};
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit8.Text)=5 then BEGIN sound(okk);Edit9.setfocus;end;
+
+end;
+
+procedure TForm3.Edit9KeyPress(Sender: TObject; var Key: Char);
+begin         // ввод в поле Ц) время
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true; Button2.Enabled:=false;
+s:=edit8.Text;
+if (length(edit8.Text)<>6)AND(length(edit8.Text)<>4) then
+ begin
+ sound(err);
+ messagedlg('Неверно введено'+#13+'поле Ц) '+s+' !',mterror,[mbok],0);
+ key:=chr(0);edit9.Text:=''; edit8.Text:='';
+ edit9.Enabled:=false;Edit8.setfocus;
+ exit;
+ end;
+
+edit10.enabled:=true;
+case Key of
+'0'..'9': ;
+#8 : ;
+#13 :BEGIN sound(okk);
+     IF EDIT9.TEXT='' THEN BEGIN MEMO1.SetFocus;EXIT;END;
+     Edit10.setfocus;END
+{begin
+      if length(edit9.Text)<4 then Edit9.setfocus;
+      exit;
+      end};
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit9.Text)=3 then BEGIN sound(okk);Edit10.setfocus;end;
+
+end;
+
+procedure TForm3.Edit10KeyPress(Sender: TObject; var Key: Char);
+begin          // ввод в поле Ц) расч или пост
+label11.Caption:='';
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+Button8.Enabled:=true;Button2.Enabled:=false;
+s:=edit9.Text;
+if (length(s)<>4)AND(edit9.text<>'') then begin
+sound(err);
+messagedlg('Неверно введено'+#13+'поле Ц) время '+s+' !',mterror,[mbok],0);
+key:=chr(0);edit10.Text:=''; edit9.Text:='';
+edit10.Enabled:=false;Edit9.setfocus;
+exit;
+end; 
+
+Memo1.enabled:=true;
+case Key of
+'а'..'я': begin
+          key:=Chr(ord(key)-32);
+          MessageDlg('Нажмите клавишу <Caps Lock>',mtinformation,[mbOk],0);
+          end;
+'А'..'Я': ;
+#8 : ;
+#13 :BEGIN sound(okk);memo1.setfocus;END;
+else Key :=Chr(0);
+end;
+IF KEY<>#8 THEN if length(edit10.Text)=3 then BEGIN sound(okk);Memo1.setfocus;end;
+end;
+
+procedure TForm3.Memo1KeyPress(Sender: TObject; var Key: Char);
+LABEL A1;
+begin         // ввод теста НОТАМ
+Button8.Enabled:=true;
+Button2.Enabled:=false;
+S:=edit10.Text;
+if (memo1.text<>'')and(edit1.text<>'')and(edit2.text<>'')and(edit3.text<>'')
+  and(edit4.text<>'')and(edit5.text<>'')and(edit6.text<>'')and(edit7.text<>'')
+  and(edit8.text<>'') then button1.Enabled:=true;
+
+  {if Key = ',' then BEGIN Key:='.';GOTO A1;END;
+  if Key = '.' then Key:=',';
+A1:                          }
+  //Button2.Enabled:=true;
+if (length(edit10.Text)<>4)AND(edit10.text<>'') then
+  begin
+  sound(err);
+  messagedlg('Неверно введено'+#13+'поле Ц) ПОСТ РАСЧ ? '+s+' !',mterror,[mbok],0);
+  key:=chr(0);edit10.Text:='';Memo1.Clear;
+  //memo1.Text:='';
+  Button1.Enabled:=false;Button2.Enabled:=false;
+  memo1.Enabled:=false;Edit10.setfocus;
+  end;
+end;
+
+Procedure tform3.poisk1;
+label a1,a3;
+var dd,mm,yy,k:integer;  
+begin
+s:=edit5.text;
+  if s=indz then
+      begin
+      // поле Б
+        P_B:=edit6.text;
+        s:=FormatDateTime('dd.mm.yyyy',Now());
+        i:=StrToInt(P_B[1]+P_B[2]);
+        dd:=StrToInt(s[1]+s[2]);
+        mm:=StrToInt(s[4]+s[5]);
+        yy:=StrToInt(s[9]+s[10]);
+        j:=StrToInt(P_B[3]+P_B[4]);
+        k:=StrToInt(P_B[5]+P_B[6]);
+        IF (i=yy)and(j=mm)and(k<=dd) then goto a3; // если с СЕГОДНЯ
+        IF (i=yy)and(j=mm)and(k=dd+1) then goto a3; // если с завтра действует
+        IF (i=yy)and(mm=1)and(dd=31)and(j=2)and(k=1) then goto a3; // ЯНВ
+        IF (i=yy)and(mm=2)and(YY/4=YY DIV 4) THEN
+            IF (dd=29)and(j=3)and(k=1) then goto a3;//ФЕВ
+        IF (i=yy)and(mm=2)and(YY/4<>YY DIV 4) THEN
+            IF (dd=28)and(j=3)and(k=1) then goto a3;//ФЕВ
+        //IF (i=yy)and(mm=2)and((dd=28)or(dd=29))and(j=3)and(k=1) then goto a3;//ФЕВ
+        IF (i=yy)and(mm=3)and(dd=31)and(j=4)and(k=1) then goto a3;  // МАРТ
+        IF (i=yy)and(mm=4)and(dd=30)and(j=5)and(k=1) then goto a3;  // АПР
+        IF (i=yy)and(mm=5)and(dd=31)and(j=6)and(k=1) then goto a3;  // МАЙ
+        IF (i=yy)and(mm=6)and(dd=30)and(j=7)and(k=1) then goto a3;  // ИЮН
+        IF (i=yy)and(mm=7)and(dd=31)and(j=8)and(k=1) then goto a3;  // ИЮЛ
+        IF (i=yy)and(mm=8)and(dd=31)and(j=9)and(k=1) then goto a3;  // АВГ
+        IF (i=yy)and(mm=9)and(dd=30)and(j=10)and(k=1) then goto a3; // СЕН
+        IF (i=yy)and(mm=10)and(dd=31)and(j=11)and(k=1) then goto a3;// ОКТ
+        IF (i=yy)and(mm=11)and(dd=30)and(j=12)and(k=1) then goto a3;// НОЯ
+        IF (i=yy+1)and(mm=12)and(dd=31)and(j=1)and(k=1) then goto a3;// ДЕК
+        GOTO A1;
+        END
+                             else goto a1;
+                                              // конец даты
+a3:sDos:=NAPRz;delete(sDos,length(sDos)-3,4);
+   S1:=S1+sDos+#13;
+a1:
+end;
+
+Procedure tform3.nado;  // проверка надо ли подпечатывать НОТАМ по срокам
+var x,y:integer;
+begin
+S1:='';
+//showmessage('Надо ли?');
+ASSIGNfile(F2,'Napom.txt');
+{$i-}
+reset(f2);
+{$i+}
+if IOResult <> 0 then
+  begin
+  MessageDlg('Ошибка доступа к файлу "Napom.txt"',
+  mtError,[mbOk],0);
+  exit;
+  end;
+while not eof(f2) do
+  begin
+  readln(f2, naprz);
+  Schet:=0;
+  naprz:=naprz+'.npr';
+  ASSIGNfile(F3,naprz);
+  {$i-}
+  reset(f3);
+  {$i+}
+  if IOResult <> 0 then
+    begin
+    MessageDlg('Ошибка доступа к файлу "'+Naprz+'"'+#13+
+    'Возможно не существует такого направления!!!'
+    ,mtError,[mbOk],0);
+    exit;
+    end;
+  readln(f3, PAPKAz);         // считывание страны
+  ii1:=1; jj1:=1;
+  while not eof(f3) do
+    begin
+    readln(f3, s);
+    if length(s)<3 then begin serz[ii1]:=s;ii1:=ii1+1;end //счит серий для бпи
+                   else begin gorz[jj1]:=s;jj1:=jj1+1;end;//счит городов для бпи
+    end;
+  closefile(f3);
+
+  ii1:=ii1-1;jj1:=jj1-1;
+  for x:=1 to jj1 do
+    begin
+    indz:=gorz[x];
+    for y:=1 to ii1 do
+       BEGIN
+       put:=PAPKAz+'\'+serz[y]+'\';
+       SDO:=combobox1.text;
+       if sdo[length(sdo)]='+' then delete(sdo,length(sdo),1);
+       IF (PAPKAz=sdo)and(serz[y]=edit2.text[1]) then Poisk1;
+       END;
+    end;
+
+  end;
+ closefile(f2);
+ sound(okk);
+ IF S1<>'' THEN MessageDlg('НЕОБХОДИМО  СЕГОДНЯ  ПОДПЕЧАТАТЬ'+#13+
+'ЭТОТ  НОТАМ  В  НАПРАВЛЕНИЕ:'+#13+#13+s1,mtinformation,[MBok],0);
+end;
+
+Procedure tform3.nado1;  // проверка надо ли удалить НОТАМ из БПИ
+var x,y:integer;
+begin
+S1:='';
+//showmessage('Надо ли?');
+ASSIGNfile(F2,'Napom.txt');
+{$i-}
+reset(f2);
+{$i+}
+if IOResult <> 0 then
+  begin
+  MessageDlg('Ошибка доступа к файлу "Napom.txt"',
+  mtError,[mbOk],0);
+  exit;
+  end;
+while not eof(f2) do
+  begin
+  readln(f2, naprz);
+  Schet:=0;
+  naprz:=naprz+'.npr';
+  ASSIGNfile(F3,naprz);
+  {$i-}
+  reset(f3);
+  {$i+}
+  if IOResult <> 0 then
+    begin
+    MessageDlg('Ошибка доступа к файлу "'+Naprz+'"'+#13+
+    'Возможно не существует такого направления!!!'
+    ,mtError,[mbOk],0);
+    exit;
+    end;
+  readln(f3, PAPKAz);         // считывание страны
+  ii1:=1; jj1:=1;
+  while not eof(f3) do
+    begin
+    readln(f3, s);
+    if length(s)<3 then begin serz[ii1]:=s;ii1:=ii1+1;end //счит серий для бпи
+                   else begin gorz[jj1]:=s;jj1:=jj1+1;end;//счит городов для бпи
+    end;
+  closefile(f3);
+
+  ii1:=ii1-1;jj1:=jj1-1;
+  for x:=1 to jj1 do
+    begin
+    indz:=gorz[x];
+    for y:=1 to ii1 do
+       BEGIN
+     //  put:=PAPKAz+'\'+serz[y]+'\';
+       SDO:=combobox1.text;
+       if sdo[length(sdo)]='+' then delete(sdo,length(sdo),1);
+       IF (PAPKAz=sdo)and(serz[y]=edit2.text[1]) then
+              begin
+              //Poisk1;
+              s:=edit5.text;
+              if s=indz then
+                        begin
+                        sDos:=NAPRz;delete(sDos,length(sDos)-3,4);
+                        S1:=S1+sDos+#13;
+                        end;
+              end;
+       END;
+    end;
+
+  end;
+ closefile(f2);
+ sound(okk);
+ IF S1<>'' THEN MessageDlg('НЕОБХОДИМО  ВЫЧЕРКНУТЬ  ЭТОТ'+#13+
+'НОТАМ  ИЗ  НАПРАВЛЕНИЯ:'+#13+#13+s1,mtinformation,[MBok],0);
+end;
+
+procedure TForm3.Button1Click(Sender: TObject);
+Label a1,a2;
+begin     // сохранение НОТАМА
+label11.Caption:='';
+BUTTON1.Enabled:=false;
+//country:=; уже присвоено
+ad:=Edit1.Text;        // А/Д
+Num:=Edit2.Text;       // номер НОТАМА
+Year:=Edit3.Text;      // год НОТАМА
+P_Q:=Edit4.Text;       // поле Щ
+P_A:=Edit5.Text;       // поле А
+P_B:=Edit6.Text;       // поле Б
+P_Bt:=Edit7.Text;      // поле Б время
+P_C:=Edit8.Text;       // поле Ц
+P_Ct:=Edit9.Text;      // поле Ц время
+P_Ct1:=Edit10.Text;    // поле Ц РАСЧ или ПОСТ
+// P_E: string[80];      // поле Е (текст НОТАМА)
+gh:='1';
+proverka;
+if gh='0' then exit;
+{if (ad='')or(Num='')or(Year='')or(P_Q='')or(P_A='')or
+   (P_B='')or(P_Bt='')or(P_C='') then
+    begin
+    sound(err);
+    MessageDlg('Не во все поля введены данные!',mterror,[mbOk],0);
+    exit;
+    end;   }
+
+        // ПРОВЕРИТЬ НЕТ ЛИ ТАКОГО ЖЕ НОМЕРА НОТАМА
+q:=num;// буква в номере НОТАМА
+ASSIGNfile(F1,country+'\'+q+'\'+num+'_'+year+'.txt');
+{$i-}
+reset(f1);
+{$i+}
+if IOResult <> 0 then goto a1;
+sound(err);
+i:=MessageDlg('НОТАМ с таким номером уже существует!'+#13+
+'Заменить его?',mtwarning,[MByes,mbNo],0);
+CLOSEFILE(F1);
+if i=7 then exit;
+
+a1:                // запись НОТАМА
+ASSIGNfile(F,country+'\'+q+'\'+num+'_'+year+'.txt');
+{$i-}
+reWRITE(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  sound(err);
+  MessageDlg('Ошибка доступа к файлу!'+#13+
+  'Неверный путь: '+country+' \ '+q+' \ '+num+'_'+year+'.txt'+#13+
+  'Возможные ошибки: '+#13+'-не верно введена буква в номере НОТАМА: '+q+#13
+  +'-на диске нет папки: '+country+#13+'-или папки: '+q,
+  mtError,[mbOk],0); exit;
+  end;
+
+WriteLn(f,num+'/'+year);
+WriteLn(f,AD);
+WriteLn(f,'Щ)'+P_Q);
+WriteLn(f,'А)'+P_A);
+WriteLn(f,'Б)'+P_B+' '+P_Bt);
+if (P_Ct<>'')and(P_Ct1<>'') then WriteLn(f,'Ц)'+P_C+' '+P_Ct+' '+P_Ct1);
+if (P_Ct<>'')and(P_Ct1='') then WriteLn(f,'Ц)'+P_C+' '+P_Ct);
+if (P_Ct='') then WriteLn(f,'Ц)'+P_C);
+WriteLn(f,'Е)');
+for i:=0 to Memo1.Lines.Count-1 do
+if i<Memo1.Lines.Count-1 then
+  writeln(f, Memo1.Lines[i])
+  else
+  write(f, Memo1.Lines[i]);
+CLOSEFILE(F);
+if Yes1=1 then
+  if (Num<>Num1)or(Year<>Year1) then
+  begin
+  ASSIGNfile(F,put);      // НЕ УДАЛЯЕСТЯ А ПЕРЕМЕЩАЕТСЯ В ПАПКУ DEL
+  AssignFile(f1,country+'\Del\'+num1+'_'+year1+'.txt');
+  Reset(f);
+  {$i-}
+  Rewrite(f1);
+  {$i+}
+  if IOResult <> 0 then
+  begin
+  sound(err);
+  MessageDlg('Не могу переместить файл:'+#13+put+#13+'в '+country+' \ Del \ '+#13+
+  'Неверный путь: '+country+' \ Del \ '+#13+
+  'Возможные ошибки: '+#13
+  +'-на диске нет папки: '+country+#13+'-или нет папки: Del',
+  mtError,[mbOk],0);
+  sound(okk);
+  MessageDlg('НОТАМ  '+num+' / '+year+' сохранен.',mtinformation,[mbOk],0);
+  nado;
+  exit;
+  end;
+  while not EOF(f) do
+      begin
+      readln(f,sDos);
+      writeln(f1,sDos);
+      end;
+  closefile(f1);
+  closefile(f);
+  erase(f);
+  sound(okk);
+  MessageDlg('Номер  '+num1+' / '+year1+' изменен на'+#13+#13+
+             'номер  '+num+' / '+year+'.',mtinformation,[mbOk],0);
+  nado;
+  goto a2;
+  end;
+//sound(okk);
+MessageDlg('НОТАМ  '+num+' / '+year+' сохранен.',mtinformation,[mbOk],0);
+nado;
+a2:
+Yes1:=0;
+Form3.ComboBox1Click(Sender);   // ОЧИСТКА ПОЛЕЙ !!!
+end;
+
+procedure TForm3.Button3Click(Sender: TObject);
+Label a1,a2,a3;
+begin                  // поиск НОТАМА ротация
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a3;
+   exit;
+   end;
+a3:
+Button6.Enabled:=true;
+Button7.Enabled:=true;
+Button9.Enabled:=true;
+Button10.Enabled:=true;
+Memo1.Clear;
+//Memo1.Text:='';
+Num:=Edit2.Text;       // номер НОТАМА
+Year:=Edit3.Text;      // год НОТАМА
+q:=num;
+Num1:=Num;Year1:=Year;Yes1:=1;
+put:=country+'\'+q+'\'+num+'_'+year+'.txt';
+ASSIGNfile(F,country+'\'+q+'\'+num+'_'+year+'.txt');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  Button6.Enabled:=false;
+  Button7.Enabled:=false;
+  Form3.ComboBox1Click(Sender);
+  Edit2.Text:=num;
+  Edit3.Text:=year;edit3.Enabled:=true;
+  sound(err);
+  MessageDlg('НОТАМ с таким номером не найден!',
+  mtError,[mbOk],0);
+  button8.enabled:=true;
+  edit2.setfocus;
+  goto a1;//exit;
+  end;
+//Button1.enabled:=true;
+ Button2.enabled:=true;
+//Button3.enabled:=false;
+Button5.enabled:=false;
+Memo1.Enabled:=true;
+Edit4.Enabled:=true;Edit5.Enabled:=true;Edit6.Enabled:=true;
+Edit7.Enabled:=true;Edit8.Enabled:=true;Edit9.Enabled:=true;
+Edit10.Enabled:=true;
+readln(f, S);                  // номер пропускаем
+readln(f, ad);edit1.text:=ad;  // аэродром
+readln(f, s);delete(s,1,2);P_Q:=s;edit4.text:=P_Q;  // поле Щ
+readln(f, s);delete(s,1,2);P_A:=s;edit5.text:=P_A;  // поле А
+readln(f, s);delete(s,1,2);P_B:=s;edit6.text:=P_B;
+delete(s,1,7);P_Bt:=s;edit7.text:=P_Bt;             // поле Б
+readln(f, s);delete(s,1,2);P_C:=s;edit8.text:=P_C;
+delete(s,1,7);P_Ct:=s;edit9.text:=P_Ct;
+delete(s,1,5);P_Ct1:=s;edit10.text:=P_Ct1;          // поле Ц
+readln(f, S);                  // Е) пропускаем
+while not EOF(f) do begin
+readln(f, P_E);
+Memo1.Lines.Add(P_E); // добавить строку в поле Memo1
+end;
+CloseFile(f);
+Memo1.SelStart:= 0;
+Memo1.SelLength:= 0;
+a1:
+                      // подсчет количества НОТАМ
+KOL:=0; TEC:=1;
+if FindFirst(country+'\'+q+'\'+'*.txt', faAnyFile, SearchRec) =0 then
+  begin
+  KOL:=KOL+1;
+  mas[kol]:=SearchRec.Name;
+  while (FindNext(SearchRec) = 0) do  begin
+  KOL:=KOL+1; mas[kol]:=SearchRec.Name;end;
+  end;
+
+for j:=1 to kol do        // УПОРЯДОЧИВАНИЕ МАССИВА №
+ for i:=1 to kol-1 do
+  begin
+  s:=mas[i];ss:=s[2]+s[3]+s[4]+s[5];
+  buf:=mas[i+1];s:=buf[2]+buf[3]+buf[4]+buf[5];
+  if ss{mas[i]}>s{mas[i+1]} then begin
+                      buf:=mas[i];
+                      mas[i]:=mas[i+1];
+                      mas[i+1]:=buf;
+                      end;
+  end;
+                          // УПОРЯДОЧИВАНИЕ МАССИВА год
+for j:=1 to kol do
+ for i:=1 to kol-1 do
+  begin
+  s:=mas[i];ss:=s[7]+s[8];
+  buf:=mas[i+1];s:=buf[7]+buf[8];
+  if ss{mas[i]}>s{mas[i+1]} then begin
+                      buf:=mas[i];
+                      mas[i]:=mas[i+1];
+                      mas[i+1]:=buf;
+                      end;
+  end;
+  I:=1;
+  WHILE (mas[i]<>(num+'_'+year+'.TXT'))and(mas[i]<>(num+'_'+year+'.txt'))
+  and(i<10001) DO i:=i+1;
+  if i>10000 then i:=0;
+  tec:=i;          // конец подсчета
+  Label10.Caption:='Всего НОТАМ серии '+q+': '+IntToStr(KOL)+
+  ' / Текущий № '+IntToStr(tec);
+  if tec=1 then begin Button6.Enabled:=false;Button9.Enabled:=false;END;
+  if tec=kol then begin Button7.Enabled:=false;Button10.Enabled:=false;end;
+end;
+
+procedure TForm3.Button8Click(Sender: TObject);
+label a1;
+begin            // очистка
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:
+ Form3.ComboBox1Click(Sender);
+end;
+
+procedure TForm3.Button6Click(Sender: TObject);
+label a1;
+begin         // предыдущий
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:
+Form3.ComboBox1Click(Sender);
+Edit3.Enabled:=true;
+Button8.Enabled:=true;
+Button9.Enabled:=true;Button10.Enabled:=true;
+Button3.Enabled:=true;Button4.Enabled:=true;
+s:='';
+s:=mas[tec-1];
+num:=s;
+edit2.Text:=num;
+year:=s[7]+s[8];
+edit3.text:=year;
+Form3.Button3Click(Sender);
+end;
+
+procedure TForm3.Button7Click(Sender: TObject);
+label a1;
+begin           // следующий
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:
+Form3.ComboBox1Click(Sender);
+Edit3.Enabled:=true;
+Button8.Enabled:=true;
+Button9.Enabled:=true;Button10.Enabled:=true;
+Button3.Enabled:=true;Button4.Enabled:=true;
+s:='';
+s:=mas[tec+1];
+num:=s;
+edit2.Text:=num;
+year:=s[7]+s[8];
+edit3.text:=year;
+Form3.Button3Click(Sender);
+end;
+
+procedure TForm3.Button4Click(Sender: TObject);
+label a1;
+begin          // удаление НОТАМА
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:
+Memo1.Clear;
+//Memo1.Text:='';
+//Button6.enabled:=false;
+//Button7.enabled:=false;
+Num:=Edit2.Text;       // номер НОТАМА
+Year:=Edit3.Text;      // год НОТАМА
+q:=num;
+Num1:=Num;Year1:=Year;Yes1:=1;
+put:=country+'\'+q+'\'+num+'_'+year+'.txt';
+ASSIGNfile(F,country+'\'+q+'\'+num+'_'+year+'.txt');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  //Button6.Enabled:=false;
+  //Button7.Enabled:=false;
+  Form3.ComboBox1Click(Sender);
+  Edit2.Text:=num;
+  Edit3.Text:=year;edit3.Enabled:=true;
+  sound(err);
+  MessageDlg('НОТАМ с таким номером не найден!',
+  mtError,[mbOk],0);
+  button8.enabled:=true;
+  edit2.setfocus;
+  {goto a1;}exit;
+  end;
+//Button1.enabled:=true;
+Button2.enabled:=true;
+//Button3.enabled:=false;
+Button5.enabled:=false;
+Memo1.Enabled:=true;
+Edit4.Enabled:=true;Edit5.Enabled:=true;Edit6.Enabled:=true;
+Edit7.Enabled:=true;Edit8.Enabled:=true;Edit9.Enabled:=true;
+Edit10.Enabled:=true;
+readln(f, S);                  // номер пропускаем
+readln(f, ad);edit1.text:=ad;  // аэродром
+readln(f, s);delete(s,1,2);P_Q:=s;edit4.text:=P_Q;  // поле Щ
+readln(f, s);delete(s,1,2);P_A:=s;edit5.text:=P_A;  // поле А
+readln(f, s);delete(s,1,2);P_B:=s;edit6.text:=P_B;
+delete(s,1,7);P_Bt:=s;edit7.text:=P_Bt;             // поле Б
+readln(f, s);delete(s,1,2);P_C:=s;edit8.text:=P_C;
+delete(s,1,7);P_Ct:=s;edit9.text:=P_Ct;
+delete(s,1,5);P_Ct1:=s;edit10.text:=P_Ct1;          // поле Ц
+readln(f, S);                  // Е) пропускаем
+while not EOF(f) do begin
+readln(f, P_E);
+Memo1.Lines.Add(P_E); // добавить строку в поле Memo1
+end;
+CloseFile(f);
+sound(err);
+Memo1.SelStart:= 0;
+Memo1.SelLength:= 0;
+j:=MessageDlg('Удалить НОТАМ?',mtwarning,[MByes,mbNo],0);  
+//Form3.ComboBox1Click(Sender);
+Edit2.Text:=num;
+Edit3.Text:=year;edit3.Enabled:=true;
+button8.enabled:=true;
+edit2.SetFocus;
+if j=7 then exit;
+nado1;
+Form3.ComboBox1Click(Sender);
+
+ASSIGNfile(F,put);      // НЕ УДАЛЯЕСТЯ А ПЕРЕМЕЩАЕТСЯ В ПАПКУ DEL
+AssignFile(f1,country+'\Del\'+num+'_'+year+'.txt');
+Reset(f);
+{$i-}
+Rewrite(f1);
+{$i+}
+if IOResult <> 0 then
+begin
+sound(err);
+MessageDlg('Не могу переместить файл:'+#13+put+#13+'в '+country+' \ Del \ '+#13+
+'Неверный путь: '+country+' \ Del \ '+#13+
+'Возможные ошибки: '+#13
++'-на диске нет папки: '+country+#13+'-или нет папки: Del',
+mtError,[mbOk],0);
+exit;
+end;
+  while not EOF(f) do
+      begin
+      readln(f,sDos);                  
+      writeln(f1,sDos);
+      end;
+  closefile(f1);
+  closefile(f);
+  erase(f);
+  sound(okk);
+  MessageDlg('НОТАМ  '+num+' / '+year+' удален!',mtinformation,[mbOk],0);
+Form3.ComboBox1Click(Sender);   // ОЧИСТКА ПОЛЕЙ !!!
+end;
+
+Procedure TForm3.PECH;  // если на принтер
+label a1;
+begin
+sound(okk);
+I:=MessageDlg('ВСТАВЬТЕ ЛИСТ,'+#13+'ВКЛЮЧИТЕ ПРИНТЕР !!!',mtCONFIRMATION,[mbOk,MBCANCEL],0);
+IF I=1 THEN
+  BEGIN
+  sound(okk);
+  KOL:=MessageDlg('НАПЕЧАТАТЬ ШАПКУ ?',mtCONFIRMATION,[mbYES,MBNO],0);
+  form9.Show;
+  form9.Close;
+  END;
+{I:=MessageDlg('ВСТАВЬТЕ ЛИСТ,'+#13+'ВКЛЮЧИТЕ ПРИНТЕР !!!',mtCONFIRMATION,[mbOk,MBCANCEL],0);
+IF I=1 THEN
+with Printer do
+begin
+sound(okk);
+I:=MessageDlg('НАПЕЧАТАТЬ ШАПКУ ?',mtCONFIRMATION,[mbYES,MBNO],0);
+BeginDoc;
+Canvas.Font.Name := Memo1.Font.Name;
+Canvas.Font.Size := Memo1.Font.Size+1;
+j:=0;
+IF i<>6 then goto a1;
+j:=25;
+Canvas.TextOut(3,j, 'Стр. N');
+j:=j+25;
+Canvas.TextOut(3,j, '================ ==================================================== ========');
+j:=j+25;
+Canvas.TextOut(3,j, 'АЭРОДРОМ (ПУНКТ)              СОДЕРЖАНИЕ     НОТАМА                    НОМЕР');
+j:=j+25;
+Canvas.TextOut(3,j, '================ ==================================================== ========');
+j:=j+50;
+a1:
+sAD:=ad;
+sDos:='';
+for i:=length(sAD) to 16 do sAD:=sAD+' ';
+sDos:=sAD+' ОТ:'+edit6.text[5]+edit6.text[6]+
+edit6.text[3]+edit6.text[4]+edit6.text[1]+edit6.text[2]+' '+
+edit7.text;
+if (edit9.text='')or(edit9.text[1]=' ') then
+   sDO:=edit8.text
+   else
+   sDO:=edit8.text[5]+
+   edit8.text[6]+edit8.text[3]+edit8.text[4]+edit8.text[1]+
+   edit8.text[2]+' '+edit9.text+' '+edit10.text;
+for i:=length(sDO) to 16 do sDO:=sDO+' ';
+Canvas.TextOut(3,j,sDos+' ДО:'+sDO+'                   '+
+edit2.Text+'/'+edit3.text);
+j:=j+25;
+for i:=0 to Memo1.Lines.Count-1 do
+if i<Memo1.Lines.Count-1 then
+  begin
+  Canvas.TextOut(3,j, '                 '+Memo1.Lines[i]);
+  j:=j+25;
+  end
+  else
+  begin
+  Canvas.TextOut(3,j, '                 '+Memo1.Lines[i]);
+  j:=j+25;
+  end;
+EndDoc;
+end;}
+end;
+
+Procedure TForm3.WIN_FILE;  // если в WINовский файл
+begin
+put1:=edit11.text;
+assignfile(f,put1);
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  put1,mtError,[mbOk],0);
+  exit;
+  end;
+sAD:=ad;
+for i:=length(sAD) to 16 do sAD:=sAD+' ';
+write(f,sAD+' ОТ:'+edit6.text[5]+edit6.text[6]+
+edit6.text[3]+edit6.text[4]+edit6.text[1]+edit6.text[2]+' '+
+edit7.text);
+if (edit9.text='')or(edit9.text[1]=' ') then
+   sDO:=edit8.text
+   else
+   sDO:=edit8.text[5]+
+   edit8.text[6]+edit8.text[3]+edit8.text[4]+edit8.text[1]+
+   edit8.text[2]+' '+edit9.text+' '+edit10.text;
+for i:=length(sDO) to 16 do sDO:=sDO+' ';
+writeln(f,' ДО:'+sDO+'                   '+
+edit2.Text+'/'+edit3.text);
+for i:=0 to Memo1.Lines.Count-1 do
+if i<Memo1.Lines.Count-1 then
+  writeln(f, '                 '+Memo1.Lines[i])
+  else
+  writeln(f, '                 '+Memo1.Lines[i]);
+closefile(f);
+sound(okk);
+MessageDlg('НОТАМ  '+Edit2.text+' / '+edit3.text+' сохранен для печати.'+#13+
+#13+'Путь: '+put1,mtinformation,[mbOk],0);
+end;
+
+Procedure TForm3.PEREVOD;   // перевод из вин в дос
+begin
+for j:=1 to length(Sdos) do
+  if (ord(sdos[j])>191)and(ord(sdos[j])<240) then
+                           sdos[j]:=(chr(ord((sdos[j]))-64))
+                      else
+     if (ord(sdos[j])>239)and(ord(sdos[j])<256) then
+                           sdos[j]:=(chr(ord((sdos[j]))-16))
+                      else
+                           sdos[j]:=(chr(ord((sdos[j]))));
+end;
+
+Procedure TForm3.DOS_FILE;  // если в ДОСовский файл
+begin
+put1:=edit11.text;
+assignfile(f,put1);
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  sound(err);
+  MessageDlg('Проверьте правильность пути:'+#13+
+  put1,mtError,[mbOk],0);
+  exit;
+  end;
+sAD:=ad;
+for i:=length(sAD) to 16 do sAD:=sAD+' ';
+Sdos:=sAD+' ОТ:'+edit6.text[5]+edit6.text[6]+
+edit6.text[3]+edit6.text[4]+edit6.text[1]+edit6.text[2]+' '+
+edit7.text;
+perevod;
+write(f,Sdos);
+if (edit9.text='')or(edit9.text[1]=' ') then
+   sDO:=edit8.text
+   else
+   sDO:=edit8.text[5]+
+   edit8.text[6]+edit8.text[3]+edit8.text[4]+edit8.text[1]+
+   edit8.text[2]+' '+edit9.text+' '+edit10.text;
+for i:=length(sDO) to 16 do sDO:=sDO+' ';
+Sdos:=' ДО:'+sDO+'                   '+
+edit2.Text+'/'+edit3.text;
+perevod;
+writeln(f,Sdos);
+for i:=0 to Memo1.Lines.Count-1 do
+if i<Memo1.Lines.Count-1 then
+  begin
+  Sdos:='                 '+Memo1.Lines[i];
+  perevod;
+  writeln(f, Sdos);
+  end
+  else
+  begin
+  Sdos:='                 '+Memo1.Lines[i];
+  perevod;
+  writeln(f, Sdos);
+  end;
+closefile(f);
+sound(okk);
+MessageDlg('НОТАМ  '+Edit2.text+' / '+edit3.text+' сохранен для печати.'+#13+
+#13+'Путь: '+put1,mtinformation,[mbOk],0);
+end;
+
+procedure TForm3.Button2Click(Sender: TObject);
+begin                                            // ПЕЧАТЬ НОТАМА
+label11.Caption:='';
+
+if RadioGroup2.ItemIndex= 0     //если в файл DOS
+   then DOS_FILE;
+
+if RadioGroup2.ItemIndex= 1     //если в файл WIN
+   then WIN_FILE;
+
+if RadioGroup2.ItemIndex= 2     //если печать на принтере
+   then PECH;
+
+//Form3.ComboBox1Click(Sender);   // ОЧИСТКА ПОЛЕЙ !!!
+end;
+
+procedure TForm3.Button11Click(Sender: TObject);
+label a1,a2;
+begin                                            // Перейти к НОМЕРУ...
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a2;
+   exit;
+   end;
+a2:
+Sound(okk);
+q:=inputbox('База данных НОТАМ','ВВЕДИТЕ СЕРИЮ НОТАМ','');
+if (q='') then exit;
+Sound(okk);
+a1:s:=inputbox('База данных НОТАМ','ВВЕДИТЕ НОМЕР ЗАПИСИ','');
+if (q='')or(s='') then exit;//Form3.ComboBox1Click(Sender);
+for i:=1 to length(s) do if (ord(s[i])<48)or(ord(s[i])>57) then goto a1;
+j1:=strtoint(s);
+if j1<1 then j1:=1;
+Button9.Enabled:=true;Button10.Enabled:=true;
+Button6.Enabled:=true;
+Button7.Enabled:=true;
+Memo1.Clear;
+//Memo1.Text:='';
+                      // подсчет количества НОТАМ
+KOL:=0; TEC:=1;
+if FindFirst(country+'\'+q+'\'+'*.txt', faAnyFile, SearchRec) =0 then
+  begin
+  KOL:=KOL+1;
+  mas[kol]:=SearchRec.Name;
+  while (FindNext(SearchRec) = 0) do  begin
+  KOL:=KOL+1; mas[kol]:=SearchRec.Name;end;
+  end;
+
+for j:=1 to kol do        // УПОРЯДОЧИВАНИЕ МАССИВА №
+ for i:=1 to kol-1 do
+  begin
+  s:=mas[i];ss:=s[2]+s[3]+s[4]+s[5];
+  buf:=mas[i+1];s:=buf[2]+buf[3]+buf[4]+buf[5];
+  if ss{mas[i]}>s{mas[i+1]} then begin
+                      buf:=mas[i];
+                      mas[i]:=mas[i+1];
+                      mas[i+1]:=buf;
+                      end;
+  end;
+                          // УПОРЯДОЧИВАНИЕ МАССИВА год
+for j:=1 to kol do
+ for i:=1 to kol-1 do
+  begin
+  s:=mas[i];ss:=s[7]+s[8];
+  buf:=mas[i+1];s:=buf[7]+buf[8];
+  if ss{mas[i]}>s{mas[i+1]} then begin
+                      buf:=mas[i];
+                      mas[i]:=mas[i+1];
+                      mas[i+1]:=buf;
+                      end;
+  end;
+  I:=1;
+  WHILE (mas[i]<>(num+'_'+year+'.TXT'))and(mas[i]<>(num+'_'+year+'.txt'))
+  and(i<10001) DO i:=i+1;
+  if i>10000 then i:=0;
+  tec:={i}j1;          // конец подсчета
+  if tec>kol then
+    begin
+    tec:=kol;
+    MessageDlg('Всего НОТАМ серии '+q+' - '+IntToStr(kol)+' шт.',MTINFORMATION,[mbOk],0);
+    end;
+  Label10.Caption:='Всего НОТАМ серии '+q+': '+IntToStr(KOL)+
+  ' / Текущий № '+IntToStr(tec);
+  if tec=1 then begin Button6.Enabled:=false;Button9.Enabled:=false;END;
+  if tec=kol then begin Button7.Enabled:=false;Button10.Enabled:=false;end;
+  edit2.Text:=num;edit3.Text:=year;
+  s:=mas[TEC];
+  Num:=s[1]+s[2]+s[3]+s[4]+s[5];       // номер НОТАМА
+  Year:=s[7]+s[8];                     // год НОТАМА
+  q:=num;
+  Num1:=Num;Year1:=Year;Yes1:=1;
+  put:=country+'\'+q+'\'+num+'_'+year+'.txt';
+  ASSIGNfile(F,country+'\'+q+'\'+num+'_'+year+'.txt');
+  {$i-}
+  reset(f);
+  {$i+}
+if IOResult <> 0 then
+  begin
+  Button6.Enabled:=false;
+  Button7.Enabled:=false;
+  Form3.ComboBox1Click(Sender);
+  {Edit2.Text:=num;
+  Edit3.Text:=year;edit3.Enabled:=true;}
+  sound(err);
+  MessageDlg('НОТАМ с такой серией не найден!',
+  mtError,[mbOk],0);
+  button8.enabled:=true;
+  edit2.Text:='';edit3.Text:='';
+  edit2.setfocus;
+  {goto a1;}exit;
+  end;
+//Button1.enabled:=true;
+Button2.enabled:=true;
+Button5.enabled:=false;Button8.enabled:=TRUE;
+Button3.enabled:=TRUE;Button4.enabled:=TRUE;
+Memo1.Enabled:=true;Edit3.Enabled:=true;
+Edit4.Enabled:=true;Edit5.Enabled:=true;Edit6.Enabled:=true;
+Edit7.Enabled:=true;Edit8.Enabled:=true;Edit9.Enabled:=true;
+Edit10.Enabled:=true;
+edit2.Text:=num;edit3.Text:=year;
+readln(f, S);                  // номер пропускаем
+readln(f, ad);edit1.text:=ad;  // аэродром
+readln(f, s);delete(s,1,2);P_Q:=s;edit4.text:=P_Q;  // поле Щ
+readln(f, s);delete(s,1,2);P_A:=s;edit5.text:=P_A;  // поле А
+readln(f, s);delete(s,1,2);P_B:=s;edit6.text:=P_B;
+delete(s,1,7);P_Bt:=s;edit7.text:=P_Bt;             // поле Б
+readln(f, s);delete(s,1,2);
+i:=length(s);
+while s[i]=' ' do
+begin
+delete(s,i,1);
+i:=i-1;
+end;
+P_C:=s;edit8.text:=P_C;
+delete(s,1,7);P_Ct:=s;edit9.text:=P_Ct;
+delete(s,1,5);P_Ct1:=s;edit10.text:=P_Ct1;          // поле Ц
+readln(f, S);                  // Е) пропускаем
+while not EOF(f) do begin
+readln(f, P_E);
+Memo1.Lines.Add(P_E); // добавить строку в поле Memo1
+end;
+CloseFile(f);
+//a1:
+end;
+
+procedure TForm3.Button10Click(Sender: TObject);
+label a1;
+begin                                       // ПЕРЕЙТИ К ПОСЛЕДНЕЙ ЗАПИСИ
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:
+Form3.ComboBox1Click(Sender);
+Edit3.Enabled:=true;
+Button8.Enabled:=true;
+Button9.Enabled:=true;Button10.Enabled:=true;
+Button3.Enabled:=true;Button4.Enabled:=true;
+s:='';
+s:=mas[KOL];
+num:=s;
+edit2.Text:=num;
+year:=s[7]+s[8];
+edit3.text:=year;
+Form3.Button3Click(Sender);
+end;
+
+procedure TForm3.Button9Click(Sender: TObject);
+label a1;
+begin                                           // ПЕРЕЙТИ К 1-ОЙ ЗАПИСИ
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:
+Form3.ComboBox1Click(Sender);
+Edit3.Enabled:=true;
+Button8.Enabled:=true;
+Button9.Enabled:=true;Button10.Enabled:=true;
+Button3.Enabled:=true;Button4.Enabled:=true;
+s:='';
+s:=mas[1];
+num:=s;
+edit2.Text:=num;
+year:=s[7]+s[8];
+edit3.text:=year;
+Form3.Button3Click(Sender);
+end;
+
+procedure TForm3.Button5Click(Sender: TObject);
+label a1;
+begin                                            // ВОССТАНОВЛЕНИЕ НОТАМА
+label11.Caption:='';
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:
+Memo1.Clear;
+//Memo1.Text:='';
+Button6.enabled:=false;
+Button7.enabled:=false;
+Num:=Edit2.Text;       // номер НОТАМА
+Year:=Edit3.Text;      // год НОТАМА
+q:=num;
+Num1:=Num;Year1:=Year;Yes1:=1;
+put:=country+'\'+q+'\'+num+'_'+year+'.txt';
+ASSIGNfile(F,country+'\Del\'+num+'_'+year+'.txt');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  //Button6.Enabled:=false;
+  //Button7.Enabled:=false;
+  Form3.ComboBox1Click(Sender);
+  Edit2.Text:=num;
+  Edit3.Text:=year;edit3.Enabled:=true;
+  sound(err);
+  MessageDlg('НОТАМ с таким номером не найден!',
+  mtError,[mbOk],0);
+  button8.enabled:=true;
+  edit2.setfocus;
+  {goto a1;}exit;
+  end;
+//Button1.enabled:=true;
+Button2.enabled:=true;
+//Button3.enabled:=false;
+Button5.enabled:=false;
+Memo1.Enabled:=true;
+Edit4.Enabled:=true;Edit5.Enabled:=true;Edit6.Enabled:=true;
+Edit7.Enabled:=true;Edit8.Enabled:=true;Edit9.Enabled:=true;
+Edit10.Enabled:=true;
+readln(f, S);                  // номер пропускаем
+readln(f, ad);edit1.text:=ad;  // аэродром
+readln(f, s);delete(s,1,2);P_Q:=s;edit4.text:=P_Q;  // поле Щ
+readln(f, s);delete(s,1,2);P_A:=s;edit5.text:=P_A;  // поле А
+readln(f, s);delete(s,1,2);P_B:=s;edit6.text:=P_B;
+delete(s,1,7);P_Bt:=s;edit7.text:=P_Bt;             // поле Б
+readln(f, s);delete(s,1,2);P_C:=s;edit8.text:=P_C;
+delete(s,1,7);P_Ct:=s;edit9.text:=P_Ct;
+delete(s,1,5);P_Ct1:=s;edit10.text:=P_Ct1;          // поле Ц
+readln(f, S);                  // Е) пропускаем
+while not EOF(f) do begin
+readln(f, P_E);
+Memo1.Lines.Add(P_E); // добавить строку в поле Memo1
+end;
+CloseFile(f);
+sound(okk);
+j:=MessageDlg('Восстановить НОТАМ?',{mtwarning}MTCONFIRMATION,[mbYes,mbNo],0);
+//Form3.ComboBox1Click(Sender);
+Edit2.Text:=num;
+Edit3.Text:=year;edit3.Enabled:=true;
+button8.enabled:=true;
+edit2.SetFocus;
+if j=7 then BEGIN Form3.ComboBox1Click(Sender);exit;END;
+ASSIGNfile(F,country+'\Del\'+num+'_'+year+'.txt');
+AssignFile(f1,put);
+Reset(f);
+{$i-}
+Rewrite(f1);
+{$i+}
+if IOResult <> 0 then
+begin
+sound(err);
+MessageDlg('Не могу переместить файл:'+#13+country+' \ Del \ '+#13+'в '+put+#13+
+'Неверный путь: '+country+' \ '+q+' \ '+#13+
+'Возможные ошибки: '+#13
++'-на диске нет папки: '+q,
+mtError,[mbOk],0);
+exit;
+end;
+  while not EOF(f) do
+      begin
+      readln(f,sDos);
+      writeln(f1,sDos);
+      end;
+  closefile(f1);
+  closefile(f);
+  erase(f);
+  sound(okk);
+  MessageDlg('НОТАМ  '+num+' / '+year+' восстановлен!',mtinformation,[mbOk],0);
+//Form3.ComboBox1Click(Sender);   // ОЧИСТКА ПОЛЕЙ !!!
+end;
+
+procedure TForm3.Button12Click(Sender: TObject);
+begin                                            // вход в режим настроек
+s:=InputBox('Доступ ограничен!','Для входа в режим введите пароль:','');
+IF s='' then exit;
+if s='6606' then
+  begin
+  RadioGroup2.Enabled:=true;
+  Edit11.Enabled:=true;
+  Button13.Enabled:=true;
+  Button16.Enabled:=true;
+  Button17.Enabled:=true;
+  Button12.Enabled:=false;
+  radiogroup1.font.Color:=002222;
+  radiogroup2.font.Color:=002222;
+  edit11.font.Color:=002222;
+  end
+  else begin
+  //MediaPlayer1.Play;
+  sound(err);
+  messageDlg('Неверный пароль!!!',mtError,[mbOk],0);
+  end;
+end;
+
+procedure TForm3.RadioGroup2Click(Sender: TObject);
+begin
+Button14.enabled:=true;
+end;
+
+procedure TForm3.Edit11KeyPress(Sender: TObject; var Key: Char);
+begin
+Button14.enabled:=true;
+end;
+
+procedure TForm3.Button14Click(Sender: TObject);
+begin                                 //сохранение настроек пути для печати
+Button14.enabled:=false;
+AssignFile(f,'Dest.txt');
+{$i-}
+Rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  sound(err);
+  MessageDlg('Не могу найти файл: Dest.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'C:\Refis\'+Imja+#13
+  +'2',
+  mtError,[mbOk],0);
+  exit;
+  end;
+s1:=edit11.Text;
+writeln(f,s1);
+j:=RadioGroup2.ItemIndex;
+s1:=inttostr(j);
+writeln(f,s1);
+closefile(f);
+end;
+
+procedure TForm3.Button16Click(Sender: TObject);
+begin                                        // Обзор папок для настроек
+Path := GetPath('Выберите папку для'+#13+'сохраниения файла подпечатки');
+s1:=Path;
+if s1 <> '' then button14.Enabled:=true;
+if Path <> '' then
+   if s1[length(Path)]<>'\' then Edit11.Text := Path+'\'+Imja
+                           else Edit11.Text := Path+Imja;
+end;
+
+procedure TForm3.Button17Click(Sender: TObject);
+begin                                            // Помощь
+Showmessage('Текст сообщения'+#13+
+            'Продолжение текста');
+end;
+
+procedure TForm3.Button13Click(Sender: TObject);
+begin                                 // загрузка стран для редактирования
+Memo2.enabled:=true;
+Memo2.Clear;
+memo2.font.Color:=002222;
+Button13.Enabled:=false;
+ASSIGNfile(F,'Country.txt');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   sound(err);
+   MessageDlg('Отсутствует файл "Country.txt"',
+   mtError,[mbOk],0); exit;
+   end;
+while not EOF(f) do begin
+readln(f, s);
+Memo2.Lines.Add(s); 
+end;
+CloseFile(f);
+end;
+
+procedure TForm3.Memo2KeyPress(Sender: TObject; var Key: Char);
+begin
+Button15.Enabled:=true;
+end;
+
+procedure TForm3.Button15Click(Sender: TObject);
+begin                               // сохранение отредактированных стран
+ASSIGNfile(F,'Country.txt');
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   sound(err);
+   MessageDlg('Отсутствует файл "Country.txt"',
+   mtError,[mbOk],0); exit;
+   end;
+ComboBox1.Clear;
+for i:=0 to Memo2.Lines.Count-1 do
+if i<Memo2.Lines.Count-1 then
+  begin
+  writeln(f, Memo2.Lines[i]);
+  ComboBox1.Items.Add(Memo2.Lines[i]);
+  end
+  else
+  begin
+  write(f, Memo2.Lines[i]);
+  ComboBox1.Items.Add(Memo2.Lines[i]);
+  end;
+CLOSEFILE(F);
+
+Memo2.enabled:=false;
+button15.Enabled:=false;
+sound(okk);
+MessageDlg('Изменения сохранены.'+#13+#13+
+'   Если была добавлена новая страна'+#13+
+'необходимо вручную создать на диске'+#13+
+'в той же папке что и файл "Notam.exe"'+#13+
+'папку с именем этой страны, затем в'+#13+
+'созданной папке создать папки с именами'+#13+
+'серий которые будут вводится для этой страны,'+#13+
+'а также папку с именем " Del ", которая '+#13+
+'необходима для временного удаления НОТАМ.'+#13+
+'   Если около наименования страны поставить'+#13+
+'знак "+" (в окне для редактирования стран),'+#13+
+'то тогда не нужно будет вводить наименование'+#13+
+'а/д (будет автоматически расшифровываться после'+#13+
+'ввода в поле "А" из файла "Russia.txt").'+#13+
+'   Если была удалена страна, то необходимо'+#13+
+'в той же папке что и файл "Notam.exe"'+#13+
+'удалить папку с именем этой страны,'+#13+
+'если она в дальнейшем больше не будет нужна.', mtinformation,[mbOk],0);
+button13.Enabled:=true;
+end;
+
+procedure TForm3.Button18Click(Sender: TObject);
+label a1;
+begin
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+   if ku=7 then goto a1;
+   exit;
+   end;
+a1:   
+Form3.Close;
+end;
+
+procedure TForm3.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+if (button2.enabled=false)and(memo1.text<>'')and(edit4.text<>'') then
+   begin
+   sound(err);
+   ku:=MessageDlg('НОТАМ был изменен!'+#13+'Сохранить изменения?',
+   mtwarning,[mbyes,mbno],0);
+   button2.enabled:=true;
+   if ku=6 then Button1Click(Sender);
+//   if ku=7 then goto a1;
+   exit;
+   end;
+
+end;
+
+procedure TForm3.Memo1KeyUp(Sender: TObject; var Key: Word;
+  ShifT : TShiftState);
+begin
+label11.caption:=IntToStr(Memo1.CaretPos.X)+' - '+IntToStr(Memo1.CaretPos.Y+1);
+{case Key of
+110 : KEY:=191;
+end;}    
+{IF SHIFT=[SSDouble] THEN
+case Key of
+110 : KEY:=191;
+end;      }
+IF button1.enabled=true then
+IF SHIFT=[SSCTRL] THEN
+case Key of
+35 : Button1Click(Sender);
+end;
+end;
+
+procedure TForm3.Memo1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+label11.caption:=IntToStr(Memo1.CaretPos.X)+' - '+IntToStr(Memo1.CaretPos.Y+1);
+end;
+
+procedure TForm3.Edit1Click(Sender: TObject);
+begin
+label11.Caption:='';
+end;
+
+procedure TForm3.Edit2Click(Sender: TObject);
+begin
+label11.Caption:='';
+end;
+
+procedure TForm3.Edit3Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+procedure TForm3.Edit4Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+procedure TForm3.Edit5Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+procedure TForm3.Edit6Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+procedure TForm3.Edit7Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+procedure TForm3.Edit8Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+procedure TForm3.Edit9Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+procedure TForm3.Edit10Click(Sender: TObject);
+begin
+label11.Caption:='';
+
+end;
+
+end.

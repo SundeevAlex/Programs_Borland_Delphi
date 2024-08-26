@@ -1,0 +1,1868 @@
+unit Svodka;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, FileCtrl;
+
+type
+  TForm7 = class(TForm)
+    ComboBox1: TComboBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit1: TEdit;
+    ComboBox2: TComboBox;
+    Label3: TLabel;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    Memo1: TMemo;
+    Button5: TButton;
+    Label4: TLabel;
+    Button6: TButton;
+    GroupBox1: TGroupBox;
+    Button7: TButton;
+    RadioGroup1: TRadioGroup;
+    Edit2: TEdit;
+    Button8: TButton;
+    Button9: TButton;
+    CheckBox1: TCheckBox;
+    Button10: TButton;
+    Button11: TButton;
+    Panel1: TPanel;
+    Button12: TButton;
+    Button13: TButton;
+    Memo2: TMemo;
+    Label5: TLabel;
+    Button14: TButton;
+    Button15: TButton;
+    Label6: TLabel;
+    procedure Button5Click(Sender: TObject);
+    procedure Memo1KeyPress(Sender: TObject; var Key: Char);
+    procedure Button4Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure ComboBox1Click(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBox2KeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBox2Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    Procedure massiv;
+    procedure vosst1;
+    procedure sort;
+    procedure Button6Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+    procedure RadioGroup1Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
+    procedure Edit2KeyPress(Sender: TObject; var Key: Char);
+    procedure Button7Click(Sender: TObject);
+    Procedure Formirov;      
+    procedure shapka;
+    procedure Button10Click(Sender: TObject);
+    procedure perezapis;
+    Procedure seach;
+    procedure FormDeactivate(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
+    procedure Button15Click(Sender: TObject);
+    procedure Button14Click(Sender: TObject);
+    procedure Pech;
+    procedure Memo1KeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form7: TForm7;
+  const
+  strok=61;  // кол-во строк в сводке
+  max=10;  // макс кол-во годов
+  imjas='Svodka.txt';
+  var
+  vi,ii,j,i,kol_not,kol_vs,sch,x,n_sv,G_SV,stran,xz:integer;
+  sp:array[1..max] of integer;
+  notams:array[1..9999,1..10] of integer;
+  notams1:array[1..5000] of integer;
+  nota:array[1..9999] of integer;
+  noty:array[1..9999] of integer;
+  {notams4:array[1..9999] of integer;
+  notams5:array[1..9999] of integer;
+  notams6:array[1..9999] of integer;
+  notams7:array[1..9999] of integer;
+  notams8:array[1..9999] of integer;
+  notams9:array[1..9999] of integer;
+  notams10:array[1..9999] of integer;}
+  deistv:array[1..9999] of string[19]; //действующие нотамы
+  disk:array[1..9999] of string[12]; // нотамы в папке
+  f2:textfile;
+  S11:STRING[255];
+  kz1:string[15];
+     sse:string;
+implementation
+uses Notambd, Bpi,printers, Sv_tabl;
+{$R *.dfm}
+function GetPath(mes: string):string;// для обзора папок
+var
+Root: string; // корневой каталог
+pwRoot : PWideChar;
+Dir: string;
+begin
+Root := '';
+GetMem(pwRoot, (Length(Root)+1) * 2);
+pwRoot := StringToWideChar(Root, pwRoot, MAX_PATH*2);
+if selectDirectory(mes, pwRoot, Dir) then
+if length(Dir) =2 then GetPath := Dir+'\'
+                  else GetPath := Dir
+                  else GetPath := '';
+end;
+
+Procedure tForm7.massiv;
+begin
+                     // подсчет кол-ва введенных номеров
+                     // и присвоение массиву номеров нотам
+                     
+{for i:=1 to 9999 do notams1[i]:=0; for i:=1 to 9999 do notams2[i]:=0;
+for i:=1 to 9999 do notams3[i]:=0;for i:=1 to 9999 do notams4[i]:=0;
+for i:=1 to 9999 do notams5[i]:=0;for i:=1 to 9999 do notams6[i]:=0;
+for i:=1 to 9999 do notams7[i]:=0;for i:=1 to 9999 do notams8[i]:=0;
+for i:=1 to 9999 do notams9[i]:=0;for i:=1 to 9999 do notams10[i]:=0;  }
+for i:=1 to max do for j:=1 to 9999 do notams[j,i]:=0;
+kol_vs:=0; sch:=1;  kol_not:=0;
+assignFILE(f1,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f1);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+while not eof(f1) do
+begin
+  readln(f1,P_E);
+  assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+P_E+'.svd');
+{$i-}
+  reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   P_E+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+  j:=1;
+  while not eof(f) do
+     begin
+     readln(f,s1);s:=''; j:=j+1;
+     while(pos(' ',s1) = 1) and(length(s1) > 0) do delete (s1,1,1);
+     for i:=1 to length(s1) do
+        begin
+//        if (ord(s1[i])<47)and(ord(s1[i])>58) then
+        if s1[i]<>' ' then
+              begin
+              s:=s+s1[i];
+               if (notams[j-1,sch]=0)and(j<>1) then j:=j-1;
+               notams[j,sch]:=strtoint(s);
+             { if sch=1 then if (notams1[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=1 then notams1[j]:=strtoint(s);
+              if sch=2 then if (notams2[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=2 then notams2[j]:=strtoint(s);
+              if sch=3 then if (notams3[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=3 then notams3[j]:=strtoint(s);
+              if sch=4 then if (notams4[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=4 then notams4[j]:=strtoint(s);
+              if sch=5 then if (notams5[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=5 then notams5[j]:=strtoint(s);
+              if sch=6 then if (notams6[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=6 then notams6[j]:=strtoint(s);
+              if sch=7 then if (notams7[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=7 then notams7[j]:=strtoint(s);
+              if sch=8 then if (notams8[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=8 then notams8[j]:=strtoint(s);
+              if sch=9 then if (notams9[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=9 then notams9[j]:=strtoint(s);
+              if sch=10 then if (notams10[j-1]=0)and(j<>1) then j:=j-1;
+              if sch=10 then notams10[j]:=strtoint(s);}
+              end;
+//        if (ord(s1[i])<47)and(ord(s1[i])>58)and(ord(s1[i+1])<47)and(ord(s1[i+1])>58) then
+        if (s1[i]=' ')and(s1[i+1]<>' ') then
+           begin
+           j:=j+1;s:='';
+           end;
+        end;
+     end;                      
+   for i:=1 to 9999 do if notams[i,sch]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+ { if sch=1 then for i:=1 to 9999 do if notams1[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=2 then for i:=1 to 9999 do if notams2[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=3 then for i:=1 to 9999 do if notams3[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=4 then for i:=1 to 9999 do if notams4[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=5 then for i:=1 to 9999 do if notams5[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=6 then for i:=1 to 9999 do if notams6[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=7 then for i:=1 to 9999 do if notams7[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=8 then for i:=1 to 9999 do if notams8[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=9 then for i:=1 to 9999 do if notams9[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end;
+  if sch=10 then for i:=1 to 9999 do if notams10[i]<>0 then
+    begin if P_E=comboBox2.text then kol_not:=kol_not+1;kol_vs:=kol_vs+1;end; }
+  closefile(f);
+sch:=sch+1;
+end;
+closefile(f1);
+label4.Caption:='За '+comboBox2.text+' год: '+inttostr(kol_not)+' НОТАМ'+#13+
+                'Всего НОТАМ: '+inttostr(kol_vs);
+end;
+
+procedure TForm7.FormActivate(Sender: TObject);
+var i:integer;
+begin
+xz:=0;
+//memo1.Clear;
+//memo1.enabled:=false;
+ComboBox1.Clear;
+//ComboBox1.SetFocus;
+//ComboBox2.Clear;
+//ComboBox2.enabled:=false;
+{button1.enabled:=false;
+button2.enabled:=false;
+button3.enabled:=false;
+button4.enabled:=false;
+button5.enabled:=false;
+button6.enabled:=false;
+button8.enabled:=false;
+button7.enabled:=true;
+edit2.enabled:=false;
+radiogroup1.Enabled:=false;}
+//edit1.Clear;
+//edit1.enabled:=false;
+//Label4.Caption:='';
+                                             
+AssignFile(f,'Dest2.txt');   //считывание настроек проги
+{$i-}
+Reset(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Не могу найти файл: Dest2.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'C:\Refis\'+imjas+#13+'1',
+  mtError,[mbOk],0);
+  exit;
+  end;
+readln(f,s1);
+edit2.Text:=s1;
+readln(f,s1);
+if (s1<>'0')and(s1<>'1')and(s1<>'2') then s1:='0';
+j:=strtoint(s1);
+RadioGroup1.ItemIndex:=j;
+closefile(f);
+
+ASSIGNfile(F,'Country.txt');                  // считывание стран из файла
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then begin
+form3.sound(err);
+MessageDlg('Отсутствует файл "Country.txt"'+
+#13+'Примерное содержание файла:'+#13+
+'РОССИЯ+'+#13+
+'КИТАЙ'+#13+#13+
+'занак "+" обозначает, что в файле Russia.txt'+#13+
+'для этой страны имеются четырехбуквенные индексы'+#13+
+'с расшифровкой. Для автоматического раскодирования.',
+mtError,[mbOk],0); exit; end;
+while not eof(f) do
+  begin
+  s:='';
+  readln(f,country);
+  for i:=1 to length(country) do s:=s+'';
+  if country[i-1]='+' then delete(country,i-1,1);
+  ComboBox1.Items.Add(country);
+  end;
+closefile(f);
+combobox1.Text:=kz1;
+Button9.enabled:=false;
+end;
+
+procedure TForm7.ComboBox1Click(Sender: TObject);   // ВЫБОР СТРАНЫ
+begin
+IF COMBOBOX1.TEXT='' THEN EXIT;
+panel1.font.Color:=clGray;
+button7.enabled:=false;
+button12.enabled:=false;
+button13.enabled:=false;
+checkbox1.enabled:=false;
+button6.Enabled:=false;
+button10.Enabled:=true;
+memo1.Clear;memo1.Enabled:=false;
+combobox2.clear;
+combobox2.Enabled:=false;
+button4.Enabled:=false;
+Form3.sound(okk);
+edit1.Enabled:=true;
+edit1.setfocus;
+
+label6.Enabled:=false;
+memo2.Clear;
+memo2.Enabled:=false;
+label5.Caption:='';
+label5.Enabled:=false;
+button14.Enabled:=false;
+button15.Enabled:=false;
+if edit1.text<>'' then button2.Enabled:=true;
+if edit1.text<>'' then button3.Enabled:=true;
+end;
+
+procedure TForm7.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin                      // С Е Р И Я
+label6.Enabled:=false;
+memo2.Clear;
+memo2.Enabled:=false;
+label5.Caption:='';
+label5.Enabled:=false;
+button14.Enabled:=false;
+button15.Enabled:=false;
+
+button3.Enabled:=true;
+Button2.enabled:=true;
+//ComboBox2.Enabled:=true;
+case key of
+'а'..'я': key:=Chr(ord(key)-32);
+'А'..'Я': ;
+#8 : ;
+#83 : ;
+#13: button2.setfocus;
+else Key :=Chr(0);
+end;
+end;
+
+procedure TForm7.ComboBox2KeyPress(Sender: TObject; var Key: Char);
+begin                     // В В О Д   Г О Д А
+button6.Enabled:=false;
+checkbox1.enabled:=false;
+MEMO1.Clear;
+memo1.Enabled:=true;
+button4.Enabled:=false;
+button1.Enabled:=true;
+case Key of
+'0'..'9': ;
+#8 : ;
+#13: button1.setfocus;
+else Key :=Chr(0);
+end;
+end;
+
+procedure TForm7.ComboBox2Click(Sender: TObject);  // ВЫБОР ГОДА
+begin
+IF COMBOBOX2.TEXT='' THEN EXIT;
+massiv;
+checkbox1.enabled:=true;
+button6.Enabled:=true;
+if ComboBox2.text<>'' then button4.Enabled:=true;
+memo1.Enabled:=true;
+memo1.Clear;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+comboBox2.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   comboBox2.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+while not EOF(f) do begin
+readln(f, s1);
+Memo1.Lines.Add(s1);
+end;
+closefile(f);
+end;
+
+procedure TForm7.Button1Click(Sender: TObject);  // ДОБАВИТЬ
+Label a1,a2;
+begin
+if (length(combobox2.text)<>4) then
+    begin
+    Form3.sound(err);
+    MessageDlg('Ошибка ввода года: '+combobox2.Text+#13+'Введите год заново.',mtError,[mbOk],0);
+    combobox2.text:='';combobox2.SetFocus;
+    exit;
+    end;
+
+s:=combobox2.Text;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then     // если файла нет то создаем новый
+   begin                             //создание главного файла
+   assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+   ReWrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+   writeln(f,ComboBox2.text);
+   ComboBox2.Items.Add(ComboBox2.text);
+   closefile(f);
+                                      //создание доп файла
+   assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+combobox2.text+'.svd');
+{$i-}
+   ReWrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   combobox2.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+   closefile(f);
+   button1.Enabled:=false;
+   goto a1;
+   end;
+while not eof(f) do
+  begin
+  readln(f,s1);
+  ComboBox2.Items.Add(s1);
+  if (ComboBox2.text=s1)and(s1<>'') then
+    begin
+    Form3.sound(err);
+    ShowMessage('Такой год уже существует!!!');
+    button1.Enabled:=false;
+    closefile(f);
+    s:=ComboBox2.text;
+    ComboBox2.Clear;
+    assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+    reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+     while not eof(f) do
+     begin
+     readln(f,s1);
+     ComboBox2.Items.Add(s1);
+     end;
+     closefile(f);
+     ComboBox2.text:=s;
+     ComboBox2.setfocus;
+     exit;
+    end;
+  end;
+closefile(f);
+                              //дописывание в главный файл
+//ComboBox2.Clear;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+append(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+writeln(f,ComboBox2.text);
+closefile(f);
+                              //создание доп файла
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+combobox2.text+'.svd');
+{$i-}
+ReWrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   combobox2.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+closefile(f);
+
+button1.Enabled:=false;
+ComboBox2.Items.Add(ComboBox2.text);
+
+a1:
+ComboBox2.Clear;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+i:=1;
+while not eof(f) do
+  begin
+  readln(f,s1);
+  ComboBox2.Items.Add(s1);
+  i:=i+1;
+  if i>max+1 then
+    begin
+    MessageDlg('Максимальное количество годов: '+inttostr(max)+' !',
+    mtError,[mbOk],0);
+    goto a2;
+    end;
+  end;
+a2:
+closefile(f);
+ComboBox2.setfocus;
+button4.Enabled:=false;
+button4.Enabled:=false;
+memo1.Clear;
+label4.Caption:='';
+combobox2.Text:=s;memo1.SetFocus;
+end;
+
+procedure TForm7.Button3Click(Sender: TObject);  // НОВАЯ
+begin
+if (length(edit1.text)<>1) then
+    begin
+    Form3.sound(err);
+    MessageDlg('Ошибка ввода серии нотам: '+edit1.Text+#13+'Введите серию заново.',mtError,[mbOk],0);
+    edit1.text:='';edit1.SetFocus;
+    exit;
+    end;
+memo1.Clear;
+memo1.enabled:=false;
+Form3.sound(err);
+i:=MessageDlg('Вы уверены что хотите создать новую сводку?'+#13+
+              '(старая сводка будет стерта)',
+mtWarning,[mbOk,mbCancel],0);
+if i=2 then exit;                          //удаление старых файлов
+if FindFirst('Svodka\'+comboBox1.text+'_'+edit1.text+'_'+'????'+'.svd',
+faAnyFile, SearchRec) =0 then
+  begin
+  s1:='Svodka\'+SearchRec.name;
+  assignFILE(f,s1);
+{$i-}
+  reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+s1,
+   mtError,[mbOk],0);
+   exit;
+   end;
+  closefile(f); erase(f);
+  while (FindNext(SearchRec) = 0) do
+     begin
+     s1:='Svodka\'+SearchRec.name;
+     assignFILE(f,s1);
+{$i-}
+     reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+s1,
+   mtError,[mbOk],0);
+   exit;
+   end;
+     closefile(f); erase(f);
+     end;
+  end;
+
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   Form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+CloseFile(f);
+ComboBox2.Enabled:=true;
+ComboBox2.Clear;
+button3.Enabled:=false;
+button2.Enabled:=false;
+ComboBox2.setfocus;
+end;
+
+procedure TForm7.Button2Click(Sender: TObject);  // ЗАГРУЗИТЬ
+begin
+if (length(edit1.text)<>1) then
+    begin
+    Form3.sound(err);
+    MessageDlg('Ошибка ввода серии нотам: '+edit1.Text+#13+'Введите серию заново.',mtError,[mbOk],0);
+    edit1.text:='';edit1.SetFocus;
+    exit;
+    end;
+ComboBox2.clear;
+button2.Enabled:=false;
+button3.Enabled:=false;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   Form3.sound(err);
+   MessageDlg('Нет такой сводки!',mtError,[mbOk],0);
+   button3.Enabled:=true;
+   exit;
+   end;
+while not eof(f) do
+  begin
+  readln(f,s1);
+  ComboBox2.Items.Add(s1);
+  end;
+closefile(f);
+ComboBox2.Enabled:=true;
+ComboBox2.ItemIndex:=0;
+ComboBox2.setfocus;
+if combobox2.text<>'' then Button4.Enabled:=true;
+memo1.enabled:=true;
+
+memo1.Clear;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+comboBox2.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   comboBox2.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+while not EOF(f) do begin    //тута
+readln(f, s1);
+{s11:='';
+if length(s1)<65 then readln(f, s11);
+if (s1[length(s1)]=' ')or(s11[1]=' ') then }Memo1.Lines.Add(s1{+s11});
+                                      {else Memo1.Lines.Add(s1+' '+s11);}
+end;
+closefile(f);
+massiv;
+button6.enabled:=true;
+checkbox1.enabled:=true;
+end;
+
+procedure TForm7.Button4Click(Sender: TObject); //УДАЛИТЬ
+begin
+form3.Sound(err);
+i:=MessageDlg('Удалить '+combobox2.text+' год'+#13+
+              'и данные для него?',
+mtWarning,[mbOk,mbCancel],0);
+if i=2 then exit;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+assignFILE(f1,'zzz.zzz');
+{$i-}
+rewrite(f1);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'zzz.zzz',
+   mtError,[mbOk],0);
+   exit;
+   end;
+while not eof(f) do
+  begin
+  readln(f,s1);
+  if s1<>comboBox2.text then writeln(f1,s1);
+  end;
+closefile(f);closefile(f1);
+
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+assignFILE(f1,'zzz.zzz');
+{$i-}
+reset(f1);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'zzz.zzz',
+   mtError,[mbOk],0);
+   exit;
+   end;
+while not eof(f1) do
+  begin
+  readln(f1,s1);
+  writeln(f,s1);
+  end;
+closefile(f);closefile(f1); erase(f1);
+
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+comboBox2.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   comboBox2.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+closefile(f);erase(f);
+
+ComboBox2.Clear;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+while not eof(f) do
+  begin
+  readln(f,s1);
+  ComboBox2.Items.Add(s1);
+  end;
+closefile(f);
+ComboBox2.setfocus;
+memo1.Clear;
+label4.Caption:='';
+button4.Enabled:=false;
+button5.Enabled:=false;
+memo1.Enabled:=false;
+
+{combobox1.enabled:=false;}
+checkbox1.Enabled:=false;
+{edit1.enabled:=false;
+combobox2.itemindex:=0;
+combobox2.enabled:=false;}
+button6.Enabled:=false;
+{button4.Enabled:=false;
+button6.Enabled:=false;
+checkbox1.enabled:=false;}
+
+end;
+
+procedure TForm7.Memo1KeyPress(Sender: TObject; var Key: Char);
+begin           // ВВОД НОМЕРОВ ДЕЙСТВ НОТАМ
+case Key of
+'0'..'9': ;
+'А'..'Я': ;
+#43: KEY:=CHR(32);
+#13 : ;
+#32 : ;
+#82:;//ins
+#83:;//del
+#8:;// <-
+#3:;// ctrl&C
+#22:;//ctrl&V
+//#1:;//ctrl&A
+else Key :=Chr(0);
+end;
+combobox1.enabled:=false;
+checkbox1.Enabled:=true;
+edit1.enabled:=false;
+combobox2.enabled:=false;
+button5.Enabled:=true;
+button4.Enabled:=false;
+button6.Enabled:=false;
+{if memo1.Modified then} button11.Enabled:=true;
+checkbox1.enabled:=false;
+
+label4.Caption:='';
+end;
+
+procedure TForm7.perezapis;  // пока не используется это
+begin 
+assignFILE(f1,'zzz.zzz');
+{$i-}
+rewrite(f1);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: "zzz.zzz"',
+   mtError,[mbOk],0);
+   exit;
+   end;
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+comboBox2.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   comboBox2.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+while not eof(f) do
+  begin
+  readln(f,s1);
+  for j:=1 to length(s1) do if (ord(s1[j])<48)or(ord(s1[j])>57)
+   {(s1[j]='')and(s1[j+1]='9') }then
+                                begin
+                                s1[j]:=' ';{s1[j+1]:=' ';}
+                                end;
+  writeln(f1,s1);
+  end;
+closefile(f);
+closefile(f1);
+end;
+
+Procedure tform7.seach;
+label a1;
+var
+     ise,jse,numse,xse,shse,sse1:integer;
+begin
+numse:=0;                             // поиск
+for ise:=0 to form7.Memo1.Lines.Count do
+   begin
+   if ise<>0 then numse:=numse+2;
+   for jse:=1 to length(form7.Memo1.Lines[ise]) do
+     begin
+     shse:=0;
+     if (form7.Memo1.Lines[ise][jse]=sse[1]) then
+       begin
+       for xse:=1 to length(sse) do
+       if form7.Memo1.Lines[ise][jse+xse-1]=sse[xse] then shse:=shse+1;
+       if shse=length(sse) then
+       begin
+       form7.Memo1.SelStart:=numse;
+       form7.Memo1.SelLength:= length(sse)*2+3;
+       exit;
+       end;
+       end;
+     numse:=numse+1;
+       end;
+      end;
+end;
+
+procedure TForm7.Button5Click(Sender: TObject); //сохранить
+label a1;
+var mmm{,mmm1}:integer;
+begin
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+comboBox2.text+'.svd');
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+
+   comboBox2.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+for i:=1 to 5000 do notams1[i]:=0;
+for i:=0 to Memo1.Lines.Count-1 do
+   begin
+   s11:=Memo1.Lines[i];
+   s1:=Memo1.Lines[i];s1:='';
+   for j:=1 to length(s11) do
+     begin
+     if (ord(s11[j])<48)or(ord(s11[j])>57) then
+                                           begin
+                                           {if (ord(s11[j])<>9)or(ord(s11[j])<>32) then
+                                             begin
+                                             showmessage('Ошибка в строке N'+inttostr(i+1)+#13+
+                                             'Символ: '+s11[j]);
+                                             end;}
+                                           s1:=s1+' ';
+                                           end
+                                           else
+                                           s1:=s1+s11[j];
+  { if s1[1]=' ' then delete(s1,1,1);// уд-е лишних пробелов если надо
+   if (s1[length(s1)]=' ')and(s1[length(s1)-1]=' ') then delete(s1,length(s1),1);}
+     end;
+       if i<Memo1.Lines.Count-1 then
+                             writeln(f, s1)
+                             else
+                             write(f, s1);
+  end;
+closefile(f);
+
+// ПРОВЕРКА ПРАВИЛЬНОСТИ ВВОДА НОМЕРОВ НОТАМ ЧТОБ НЕ БЫЛО ТАК: 0002 0008 0005
+
+assignFILE(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'_'+comboBox2.text+'.svd');
+reset(f);
+mmm:=1;
+while not eof(f) do
+begin
+readln(f,s1);
+s:='';
+for i:=1 to length(s1) do
+    begin
+    IF (s1[i]<>' '){or(s1[i]<>'')} then s:=s+s1[i];
+    if (s<>'') then if (s<>' ')and((s1[i]=' ')or(i=length(s1))) then
+       if strtoint(s)<>0 then begin notams1[mmm]:=strtoint(s);mmm:=mmm+1;s:='';end;
+    end;
+end;
+closefile(f);
+for i:=2 to 5000 do
+  if notams1[i]<>0 then
+       BEGIN
+         if (notams1[i-1]=notams1[i]) then
+         begin
+         sse:=inttostr(notams1[i-1]){+' '+inttostr(notams1[i])};
+         form3.sound(err);
+         MessageDlg('ВНИМАНИЕ! ОБНАРУЖЕНА ОШИБКА!'+#13+
+                    'ПРОВЕРЬТЕ ПРАВИЛЬНОСТЬ ВВОДА НОМЕРОВ НОТАМ:'+#13+
+                    inttostr(notams1[i-1])+' и '+inttostr(notams1[i])+#13+
+                    '(ДВА НОМЕРА ПОДРЯД ОДИНАКОВЫЕ!)',mtError,[mbOk],0);
+         button11.Enabled:=false;button6.Enabled:=false; button5.Enabled:=false;memo1.SetFocus;
+         seach;
+         exit;
+         end;
+ 
+         if (notams1[i-1]>notams1[i])AND(notams1[i]<>0) then
+         begin
+         sse:=inttostr(notams1[i-1]){+' '+inttostr(notams1[i])};
+         form3.sound(err);
+         MessageDlg('ВНИМАНИЕ! ОБНАРУЖЕНА ОШИБКА!'+#13+
+                    'ПРОВЕРЬТЕ ПРАВИЛЬНОСТЬ ВВОДА НОМЕРОВ НОТАМ:'+#13+
+                    inttostr(notams1[i-1])+' и '+inttostr(notams1[i])+#13+
+                    '(ПРЕДЫДУЩИЙ НОМЕР БОЛЬШЕ ЧЕМ СЛЕДУЮЩИЙ ЗА НИМ!)',mtError,[mbOk],0);
+         button11.Enabled:=false;button6.Enabled:=false;button5.Enabled:=false;memo1.SetFocus;
+         seach;
+         exit;
+         end;
+       end;
+//perezapis;      //и тута
+s11:=comboBox2.Text;
+//Button2Click(Sender);
+comboBox2.Text:=s11;
+comboBox2Click(Sender);
+massiv;
+
+//
+combobox1.enabled:=true;
+edit1.enabled:=true;
+combobox2.enabled:=true;
+
+//
+button5.Enabled:=false;
+checkbox1.enabled:=true;
+button6.Enabled:=true;
+memo1.SetFocus;
+end;
+
+procedure tform7.vosst1;   // восстановление из удаленных нотамов
+label a1;
+VAR XJ:INTEGER;
+begin
+sDos:='';
+for vi:=length(inttostr(notams[ii,kol_vs])) to 3 do sDos:='0'+sDos;
+sDos:=sDos+inttostr(notams[ii,kol_vs]);
+s:=edit1.text+sDos+'_'+year+'.txt';
+assignfile(f,comboBox1.text+'\Del\'+s);
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then  goto a1; //   Восстановлению не подлежит
+assignfile(f2,comboBox1.text+'\'+edit1.Text+'\'+s);
+{$i-}
+rewrite(f2);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+comboBox1.text+'\'+edit1.Text+'\'+s,
+   mtError,[mbOk],0);
+   goto a1;
+   end;
+readln(f,sDos);
+writeln(f2,sDos);
+readln(f,sDos);
+writeln(f2,sDos);
+
+form3.sound(OKK);
+xj:=MessageDlg('НОТАМ '+EDIT1.Text+'  '+inttostr(notams[ii,kol_vs])+' / '+year+'  '+sDos+
+              #13+#13+
+              'БЫЛ УДАЛЕН ИЗ БД НОТАМ,'+#13+#13+
+              'НО ОН ИМЕЕТСЯ В "СВОДКЕ".'+#13+#13+
+              'ВОССТАНОВИТЬ ЕГО ?',mtConfirmation,[mbOk,MbCancel],0);
+if xj<>1 then
+     begin
+     closefile(f);
+     closefile(f2);erase(f2);
+     goto a1;
+     //     exit;
+     end;
+deistv[i]:='+'+inttostr(notams[ii,kol_vs])+'|'+sDos;
+while not eof(f) do
+begin
+readln(f,sDos);
+writeln(f2,sDos);
+end;
+closefile(f); erase(f);
+closefile(f2);
+exit;
+a1:
+deistv[i]:='-'+inttostr(notams[ii,kol_vs])+'|_____________';  
+end;
+
+procedure TForm7.sort;
+begin
+assignfile(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+for i:=1 to max do sp[i]:=0;
+i:=1;
+while not eof(f) do
+ begin
+ readln(f,s);
+ sp[i]:=strtoint(s);
+ i:=i+1;
+ end;
+closefile(f);
+// СОРТИРОВКА
+for j:=1 to max do
+ for i:=1 to max-1 do
+  begin
+  x:=sp[i+1];
+  if (sp[i]>sp[i+1])and(sp[i+1]>0) then begin
+                      x:=sp[i];
+                      sp[i]:=sp[i+1];
+                      sp[i+1]:=x;
+                      end;
+  end;                    
+assignfile(f,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   exit;
+   end;
+I:=1;
+while sp[i]<>0 do begin writeln(f,inttostr(sp[i]));i:=i+1;end;
+closefile(f);
+end;
+
+procedure tform7.shapka;
+begin
+if (RadioGroup1.ItemIndex= 0){or(RadioGroup1.ItemIndex= 2)}THEN writeln(f,'');
+sDos:='-------------------------------------------------------------------------------';
+if RadioGroup1.ItemIndex=0 then form4.perevod;
+writeln(f,sDos);
+sDos:='|  N  |  АЭРОПОРТ   | АНН |  N  |  АЭРОПОРТ   | АНН |  N  |  АЭРОПОРТ   | АНН |';
+if RadioGroup1.ItemIndex=0 then form4.perevod;
+writeln(f,sDos);
+sDos:='|-----|-------------|-----|-----|-------------|-----|-----|-------------|-----|';
+if RadioGroup1.ItemIndex=0 then form4.perevod;
+writeln(f,sDos);
+end;
+
+Procedure TForm7.Formirov;          // формирование сводной для печати
+label a1;
+begin
+assignfile(f,edit2.text);
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+edit2.text,
+   mtError,[mbOk],0);
+   exit;
+   end;
+stran:=1;
+writeln(f,'                                    - '+inttostr(stran)+' -');
+stran:=stran+1;
+shapka;
+i:=1;
+while (deistv[i]<>'') do i:=i+1;
+i:=i-1; // кол-во строк для печати
+s:='';
+for j:=1 to length(deistv[i]) do
+   if (ord(deistv[i][j])>47)and(ord(deistv[i][j])<58) then s:=s+deistv[i][j];
+kol_vs:=strtoint(s); // номер последнего нотама
+if CheckBox1.State = cbChecked then
+ begin
+ if (i>900)and(i<1081) then for j:=i+1 to 1080 do
+   begin
+   s:='';
+   for x:=length(inttostr(kol_vs+j-i)) to 4 do s:=s+' ';
+   deistv[j]:=s+inttostr(kol_vs+j-i)+'|_____________';
+   end;
+if (i>720)and(i<901) then for j:=i+1 to 900 do
+  begin
+  s:='';
+  for x:=length(inttostr(kol_vs+j-i)) to 4 do s:=s+' ';
+  deistv[j]:=s+inttostr(kol_vs+j-i)+'|_____________';
+  end;
+if (i>540)and(i<721) then for j:=i+1 to 720 do
+  begin
+  s:='';
+  for x:=length(inttostr(kol_vs+j-i)) to 4 do s:=s+' ';
+  deistv[j]:=s+inttostr(kol_vs+j-i)+'|_____________';
+  end;
+if (i>360)and(i<541) then for j:=i+1 to 540 do
+  begin
+  s:='';
+  for x:=length(inttostr(kol_vs+j-i)) to 4 do s:=s+' ';
+  deistv[j]:=s+inttostr(kol_vs+j-i)+'|_____________';
+  end;
+if (i>180)and(i<361) then for j:=i+1 to 360 do
+  begin
+  s:='';
+  for x:=length(inttostr(kol_vs+j-i)) to 4 do s:=s+' ';
+  deistv[j]:=s+inttostr(kol_vs+j-i)+'|_____________';
+  end;
+if i<181 then for j:=i+1 to 180 do
+  begin
+  s:='';
+  for x:=length(inttostr(kol_vs+j-i)) to 4 do s:=s+' ';
+  deistv[j]:=s+inttostr(kol_vs+j-i)+'|_____________';
+  end;
+end;
+j:=1;x:=1;
+while {(deistv[j]<>'')and}(x<>strok) do
+ begin
+ if (deistv[j]<>'')and(deistv[j+strok-1]<>'')and(deistv[j+strok+strok-2]<>'') then
+ begin
+  sDos:='|'+deistv[j]+'|_____|'+deistv[j+strok-1]+'|_____|'+deistv[j+strok+strok-2]+'|_____|';
+  if RadioGroup1.ItemIndex=0 then form4.perevod;
+  writeln(f,sDos);
+ end;
+ if (deistv[j]<>'')and(deistv[j+strok-1]<>'')and(deistv[j+strok+strok-2]='') then
+ begin
+ sDos:='|'+deistv[j]+'|_____|'+deistv[j+strok-1]+'|_____|_____|_____________|_____|';
+  if RadioGroup1.ItemIndex=0 then form4.perevod;
+ Writeln(f,sDos);
+ end;
+ if (deistv[j]<>'')and(deistv[j+strok-1]='')and(deistv[j+strok+strok-2]='') then
+ begin
+ sDos:='|'+deistv[j]+'|_____|_____|_____________|_____|_____|_____________|_____|';
+  if RadioGroup1.ItemIndex=0 then form4.perevod;
+ Writeln(f,sDos);
+ end;
+ if (deistv[j]='')and(deistv[j+strok-1]='')and(deistv[j+strok+strok-2]='') then
+ begin
+ sDos:='|_____|_____________|_____|_____|_____________|_____|_____|_____________|_____|';
+  if RadioGroup1.ItemIndex=0 then form4.perevod;
+ Writeln(f,sDos);
+ end;
+ j:=j+1;
+ x:=x+1;
+ if x=strok then
+   begin
+   x:=1;
+   j:=j+strok+strok-2;
+   if deistv[j]='' then goto a1;
+   sDos:='-------------------------------------------------------------------------------';
+  if RadioGroup1.ItemIndex=0 then form4.perevod;
+   writeln(f,sDos);
+   if (RadioGroup1.ItemIndex= 0)THEN writeln(f,#12)
+                                else writeln(f,'');
+   writeln(f,'                                    - '+inttostr(stran)+' -');
+   stran:=stran+1;
+   shapka;
+   end;
+ end;
+a1:
+ sDos:='-------------------------------------------------------------------------------';
+ if RadioGroup1.ItemIndex=0 then form4.perevod;
+ writeln(f,sDos);
+
+closefile(f);
+end;
+
+procedure TForm7.Button6Click(Sender: TObject);// ГОТОВО
+label a1,a2,a3,a4,a5,a100,a99,a10,a11,a12,a6;
+begin
+a4:s:=inputbox('Сводка действующих НОТАМ','ВВЕДИТЕ  НОМЕР  НОТАМА  СВОДНОЙ  ТАБЛИЦЫ (без буквы)','');
+if s='' then exit;
+for i:=1 to length(s) do if (ord(s[i])<48)or(ord(s[i])>57) then goto a4;
+n_sv:=strtoint(s);
+form3.sound(okk);
+sDos:=FormatDateTime('yyyy',Now());
+a5:s:=inputbox('Сводка действующих НОТАМ','ВВЕДИТЕ  ГОД  НОТАМА  СВОДНОЙ  ТАБЛИЦЫ  (ГГГГ)',sDos);
+if s='' then exit;
+button11.Enabled:=false;
+for i:=1 to length(s) do if (ord(s[i])<48)or(ord(s[i])>57) then goto a5;
+delete(s,1,2);
+g_sv:=strtoint(s);
+
+memo2.CLEAR; label5.caption:='';
+
+comboBox1.Enabled:=false;
+edit1.Enabled:=false;
+comboBox2.Enabled:=false;
+button1.Enabled:=false;
+button4.Enabled:=false;
+button10.Enabled:=false;
+button6.Enabled:=false;
+memo1.Enabled:=false;
+checkBox1.Enabled:=false;
+
+button6.Caption:='Подождите';
+checkbox1.enabled:=false;
+button6.enabled:=false;
+cursor:={CRAPPSTART}crhourglass;
+form3.sound(okk);
+                  // здесь окошко для напом
+sort;
+massiv;
+for i:=1 to 9999 do begin deistv[i]:='';disk[i]:='';end;
+i:=1;
+if FindFirst(comboBox1.text+'\'+edit1.text+'\'+'*.txt', faAnyFile, SearchRec)=0
+   then
+   begin
+   s:=SearchRec.Name;
+   disk[i]:=s;i:=i+1;
+   while (FindNext(SearchRec) = 0) do
+        begin
+        s:=SearchRec.Name;
+        disk[i]:=s;i:=i+1;
+        end;
+   end;
+i:=1;kol_vs:=1;ii:=1;
+assignfile(f1,'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd');
+{$i-}
+reset(f1);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+'Svodka\'+comboBox1.text+'_'+edit1.text+'.svd',
+   mtError,[mbOk],0);
+   button6.Caption:='Готово';
+   exit;
+   end;
+while not eof (f1) do
+ begin
+ readln(f1,s);
+ deistv[i]:='*****|** '+s+' г. **';
+ delete(s,1,2);
+ i:=i+1;
+ year:=s;
+sch:=0;
+ii:=1;
+//if kol_vs=1 then
+while notams[ii,kol_vs]<>0 do
+  begin
+   for j:=1 to 9999 do
+     begin
+     s:=disk[j]; s1:=s;delete(s1,1,6); delete(s1,3,4);// s1=05
+     if s='' then goto a1;
+     delete(s,1,1);delete(s,5,7);
+     x:=strtoint(s);
+     if (notams[ii,kol_vs]=x)and(s1=year) then
+         begin
+         assignfile(f,comboBox1.text+'\'+edit1.text+'\'+disk[j]);
+         reset(f);
+         readln(f,s);readln(f,s);
+         deistv[i]:=inttostr(notams[ii,kol_vs])+'|'+s;
+         closefile(f);
+         disk[j]:='';sch:=1;
+         end;
+   a1:end;
+   if sch<>1 then begin vosst1;end;    // * * * * * * **  *
+   i:=i+1;ii:=ii+1;
+   sch:=0;
+   end;
+{ii:=1;
+if kol_vs=2 then
+while notams2[ii]<>0 do
+  begin
+   for j:=1 to 9999 do
+     begin
+     s:=disk[j]; s1:=s;delete(s1,1,6); delete(s1,3,4);
+     if s='' then goto a2;
+     delete(s,1,1);delete(s,5,7);
+     x:=strtoint(s);
+     if (notams2[ii]=x)and(s1=year) then
+         begin
+         assignfile(f,comboBox1.text+'\'+edit1.text+'\'+disk[j]);
+         reset(f);
+         readln(f,s);readln(f,s);
+         deistv[i]:=inttostr(notams2[ii])+'|'+s;
+         closefile(f);
+         disk[j]:='';sch:=1;
+         end;
+   a2:end;
+   if sch<>1 then deistv[i]:=inttostr(notams2[ii]);
+   i:=i+1;ii:=ii+1;
+   sch:=0;
+   end;    }
+
+
+ kol_vs:=kol_vs+1;
+ end;
+ closefile(f1);
+                           // присвоение дейст нотамам длины 19 символов
+for i:=1 to 9999 do
+  begin
+  j:=1;
+  s:=deistv[i];
+  while (s[j]<>'|')and(s<>'') do j:=j+1;
+  if deistv[i]<>'' then for x:=j to 5 do deistv[i]:=' '+deistv[i];
+  if deistv[i]<>'' then for x:=length(deistv[i]) to 19 do deistv[i]:=deistv[i]+'_';
+  if deistv[i]<>'' then for x:=5 to length(deistv[i]) do
+      if (deistv[i][x]=' ')and(deistv[i][5]<>'*') then deistv[i][x]:='_';
+  end;
+ 
+button6.Caption:='Готово';
+
+                                              // очисткa папки DEL
+//if FindFirst(comboBox1.text+'\Del\'+'*.txt', faAnyFile, SearchRec)=0
+if FindFirst(comboBox1.text+'\Del\'+edit1.text+'???????.txt', faAnyFile, SearchRec)=0
+   then
+   begin
+   assignfile(f,comboBox1.text+'\Del\'+SearchRec.Name);
+   {$i-}
+   reset(f);
+   {$i+}
+   if IOResult <> 0 then
+     begin
+     form3.sound(err);
+     MessageDlg('Ошибка доступа к файлу: '+comboBox1.text+'\Del\'+SearchRec.Name,
+     mtError,[mbOk],0);
+     goto a10;
+     end;
+     closefile(f);erase(f);
+a10:while (FindNext(SearchRec) = 0) do
+        begin
+       assignfile(f,comboBox1.text+'\Del\'+SearchRec.Name);
+       {$i-}
+       reset(f);
+       {$i+}
+       if IOResult <> 0 then
+       begin
+       form3.sound(err);
+       MessageDlg('Ошибка доступа к файлу: '+comboBox1.text+'\Del\'+SearchRec.Name,
+       mtError,[mbOk],0);
+       goto a11;
+       end;
+       closefile(f);erase(f);
+       end;
+a11:end;
+j:=0;
+for i:=1 to 9999 do           // подсчет кол-ва дейст-их НОТАМ
+  if deistv[i]<>'' then j:=j+1;
+if j<>0 then
+  begin
+  sch:=j+1;
+  s:='';
+  s:=INTTOSTR(n_sv);
+  FOR i:=length(s) to 4 do s:='*'+s;
+  deistv[sch]:=s+'|_С_В_О_Д_К_А_';
+  sch:=sch+1;
+  end;
+                           // удаление НОТАМ не вошедших в сводку
+                           // перемещение в DEL
+memo2.Enabled:=true;
+
+for i:=1 to 9999 do nota[i]:=0; for i:=1 to 9999 do noty[i]:=0;
+j:=1;
+for i:=1 to 9999 do if disk[i]<>'' then
+  begin
+  nota[j]:=strtoint(disk[i][2]+disk[i][3]+disk[i][4]+disk[i][5]);
+  noty[j]:=strtoint(disk[i][7]+disk[i][8]);
+  j:=j+1;
+  end;
+
+for j:=1 to 9999 do
+ for i:=1 to 9998 do
+  begin
+  x:=nota[i+1];
+  y:=noty[i+1];
+  if (nota[i]>nota[i+1])and(nota[i+1]>0) then begin
+                      x:=nota[i];
+                      y:=noty[i];
+                      nota[i]:=nota[i+1];
+                      noty[i]:=noty[i+1];
+                      nota[i+1]:=x;
+                      noty[i+1]:=y;
+                      end;
+  end;
+
+j:=1;
+for i:=1 to 9999 do
+   begin
+   if length(inttostr(nota[j]))=1 then if disk[i]<>'' then
+      begin
+      s:=inttostr(nota[j]);
+      disk[i][2]:='0';disk[i][3]:='0';disk[i][4]:='0';disk[i][5]:=s[1];
+      s:=inttostr(noty[j]);
+      if length(s)=1 then s:='0'+s;
+      disk[i][7]:=s[1];disk[i][8]:=s[2];
+      j:=j+1;
+      goto a6;
+      end;
+   if length(inttostr(nota[j]))=2 then if disk[i]<>'' then
+      begin
+      s:=inttostr(nota[j]);
+      disk[i][2]:='0';disk[i][3]:='0';disk[i][4]:=s[1];disk[i][5]:=s[2];
+      s:=inttostr(noty[j]);
+      if length(s)=1 then s:='0'+s;
+      disk[i][7]:=s[1];disk[i][8]:=s[2];
+      j:=j+1;
+      goto a6;
+      end;
+   if length(inttostr(nota[j]))=3 then if disk[i]<>'' then
+      begin
+      s:=inttostr(nota[j]);
+      disk[i][2]:='0';disk[i][3]:=s[1];disk[i][4]:=s[2];disk[i][5]:=s[3];
+      s:=inttostr(noty[j]);
+      if length(s)=1 then s:='0'+s;
+      disk[i][7]:=s[1];disk[i][8]:=s[2];
+      j:=j+1;
+      goto a6;
+      end;
+   if length(inttostr(nota[j]))=4 then if disk[i]<>'' then
+      begin
+      s:=inttostr(nota[j]);
+      disk[i][2]:=s[1];disk[i][3]:=s[2];disk[i][4]:=s[3];disk[i][5]:=s[4];
+      s:=inttostr(noty[j]);
+      if length(s)=1 then s:='0'+s;
+      disk[i][7]:=s[1];disk[i][8]:=s[2];
+      j:=j+1;
+      goto a6;
+      end;
+a6:
+    end;
+s1:='';s:='';ii:=0;
+for i:=1 to 9999 do if disk[i]<>'' then
+                      begin                        // номер нотама для уд-я
+                      x:=strtoint(disk[i][2]+disk[i][3]+disk[i][4]+disk[i][5]);
+                      j:=strtoint(disk[i][7]+disk[i][8]);// год нотама для уд-я
+                      if (n_sv<x)and(g_sv<=j) then
+                         begin
+                         s:='';
+                         s:='*'+INTTOSTR(x);
+                         FOR vi:=length(s) to 4 do s:=' '+s;
+                         deistv[sch]:=s+'|_ _ _ _ _ _ _';
+                         sch:=sch+1;
+                         disk[i]:='';
+                         goto a12;
+                         end;
+                      disk[i][6]:='/';
+                      //s1:=s1+disk[i]+#13;
+                      s1:=disk[i];delete(s1,9,4);
+                      Memo2.Lines.Add(s1);
+                      ii:=ii+1;
+                 a12: end;
+
+if s1='' then
+         begin
+         form3.sound(okk);
+         MessageDlg('Номеров НОТАМ для удаления нет.',mtinformation,[mbOk],0);
+         cursor:=crDefault;
+         Button15Click(Sender);
+         button11.Enabled:=true;
+         exit;//goto a99;
+         end;
+form3.sound(err);
+label6.enabled:=true;
+button14.enabled:=true;
+button15.enabled:=true;
+Label5.Enabled:=true;
+label5.Caption:=('Всего: '+inttostr(ii));
+cursor:=crDefault;
+//i:=MessageDlg('Удалить '+inttostr(ii)+' НОТАМ'+#13+'не вошедшие в сводку?'+#13{+s1},
+//   mtWarning,[mbOk,mbCancel],0);
+
+end;
+
+procedure TForm7.Button8Click(Sender: TObject);
+begin
+Path := GetPath('Выберите папку для'+#13+'сохраниения файла сводки');
+s1:=Path;
+if s1 <> '' then button9.Enabled:=true;
+if Path <> '' then
+   if s1[length(Path)]<>'\' then Edit2.Text := Path+'\'+Imjas
+                           else Edit2.Text := Path+Imjas;
+end;
+
+procedure TForm7.RadioGroup1Click(Sender: TObject);
+begin
+button9.enabled:=true;
+end;
+
+procedure TForm7.Button9Click(Sender: TObject);
+begin
+Button9.enabled:=false;
+AssignFile(f,'Dest2.txt');
+{$i-}
+Rewrite(f);
+{$i+}
+if IOResult <> 0 then
+  begin
+  form3.sound(err);
+  MessageDlg('Не могу найти файл: Dest2.txt!'+#13+
+  'Примерное содержание файла:'+#13+
+  'C:\Refis\'+Imjas+#13
+  +'2',
+  mtError,[mbOk],0);
+  exit;
+  end;
+s1:=edit2.Text;
+writeln(f,s1);
+j:=RadioGroup1.ItemIndex;
+s1:=inttostr(j);
+writeln(f,s1);
+closefile(f);
+end;
+
+procedure TForm7.Edit2KeyPress(Sender: TObject; var Key: Char);
+begin
+button9.Enabled:=true;
+end;
+
+procedure TForm7.Button7Click(Sender: TObject);
+begin
+s:=InputBox('Доступ ограничен!','Для входа в режим введите пароль:','');
+IF s='' then exit;
+if s='6606' then
+  begin
+  RadioGroup1.Enabled:=true;
+  Edit2.Enabled:=true;
+  Button8.Enabled:=true;
+  button7.enabled:=false;
+  groupbox1.font.Color:=002222;
+  radiogroup1.font.Color:=002222;
+  edit2.font.Color:=002222;
+  end
+  else begin
+  form3.sound(err);
+  messageDlg('Неверный пароль!!!',mtError,[mbOk],0);
+  end;
+end;
+
+procedure TForm7.Button10Click(Sender: TObject);
+begin
+if button5.enabled=true then
+  begin
+  form3.sound(err);
+  I:=messageDlg('СВОДКА НЕ СОХРАНЕНА!!!'+#13+'СОХРАНИТЬ СВОДКУ?',mtwarning,[mbYES,MBNo],0);
+  IF i=6 then Button5Click(Sender);
+  end;
+button7.enabled:=true;
+//panel1.enabled:=true;
+panel1.font.Color:=000000;
+button12.enabled:=true;
+button13.enabled:=true;
+memo1.Clear;
+memo2.Clear;
+memo2.enabled:=false;
+label6.enabled:=false;
+label5.caption:='';
+label5.enabled:=false;
+button14.enabled:=false;
+button15.enabled:=false;
+memo1.enabled:=false;
+ComboBox1.Clear;
+kz1:='';
+ComboBox1.Enabled:=true;
+ComboBox1.SetFocus;
+ComboBox2.Clear;
+ComboBox2.enabled:=false;
+button1.enabled:=false;
+button2.enabled:=false;
+button3.enabled:=false;
+button4.enabled:=false;
+button5.enabled:=false;
+button6.enabled:=false;
+checkbox1.enabled:=false;
+button8.enabled:=false;
+button7.enabled:=true;
+button10.enabled:=false;
+edit2.enabled:=false;
+radiogroup1.Enabled:=false;
+edit1.Clear;
+edit1.enabled:=false;
+Label4.Caption:='';
+FormActivate(Sender);
+end;
+
+procedure TForm7.FormDeactivate(Sender: TObject);
+begin
+kz1:=combobox1.Text;
+end;
+
+procedure TForm7.Button11Click(Sender: TObject);
+begin
+form7.Close;
+end;
+
+procedure TForm7.Button12Click(Sender: TObject);
+begin
+xz:=1;
+assignfile(f,edit2.text);
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+edit2.text,
+   mtError,[mbOk],0);
+   exit;
+   end;
+shapka;
+for i:=1 to 60 do
+  begin
+    if RadioGroup1.ItemIndex=2 then
+    sDos:='|     |_____________|_____|     |_____________|_____|     |_____________|_____|'
+                               else
+    sDos:='|_____|_____________|_____|_____|_____________|_____|_____|_____________|_____|';
+    if RadioGroup1.ItemIndex=0 then form4.perevod;
+    writeln(f,sDos);
+  end;
+sDos:='-------------------------------------------------------------------------------';
+if RadioGroup1.ItemIndex=0 then form4.perevod;
+writeln(f,sDos);
+closefile(f);
+form3.sound(okk);
+if RadioGroup1.ItemIndex<>2 then
+MessageDlg('Чистый бланк сохранен в файл: '+edit2.text,mtinformation,[mbOk],0);
+if RadioGroup1.ItemIndex=2 then begin form7.pech;{exit;}end;
+end;
+
+procedure TForm7.Button13Click(Sender: TObject);
+label a1;
+begin
+xz:=1;
+a1:s:=InputBox('Пронумерованный бланк','ВВЕДИТЕ НОМЕР С КОТОРОГО НАЧАТЬ НУМЕРАЦИЮ:','');
+IF s='' then exit;
+for i:=1 to length(s) do if (ord(s[i])<48)or(ord(s[i])>57) then goto a1;
+assignfile(f,edit2.text);
+{$i-}
+rewrite(f);
+{$i+}
+if IOResult <> 0 then
+   begin
+   form3.sound(err);
+   MessageDlg('Ошибка доступа к файлу: '+edit2.text,
+   mtError,[mbOk],0);
+   exit;
+   end;
+shapka;
+i:=strtoint(s);
+sDos:='';
+for j:=1 to 60 do
+  begin
+    sDos:='|';
+    s:='';
+    s:=inttostr(i);
+    for x:=length(s) to 4 do sDos:=sDos+' ';
+    sDos:=sDos+s+'|_____________|_____|';
+    s:='';
+    s:=inttostr(i+60);
+    for x:=length(s) to 4 do sDos:=sDos+' ';
+    sDos:=sDos+s+'|_____________|_____|';
+    s:='';
+    s:=inttostr(i+120);
+    for x:=length(s) to 4 do sDos:=sDos+' ';
+    sDos:=sDos+s+'|_____________|_____|';
+    if RadioGroup1.ItemIndex=0 then form4.perevod;
+    writeln(f,sDos);
+    i:=i+1;
+  end;
+
+sDos:='-------------------------------------------------------------------------------';
+if RadioGroup1.ItemIndex=0 then form4.perevod;
+writeln(f,sDos);
+closefile(f);
+form3.sound(okk);
+if RadioGroup1.ItemIndex<>2 then
+MessageDlg('Пронумерованный бланк сохранен в файл: '+edit2.text,mtinformation,[mbOk],0);
+if RadioGroup1.ItemIndex=2 then begin form7.pech;{exit;}end;
+end;
+
+procedure TForm7.Pech;               // вывод на печать
+begin
+form8.show;
+
+end;
+
+procedure TForm7.Button15Click(Sender: TObject);
+begin
+xz:=0;
+Formirov;
+button6.Caption:='Готово';
+form3.sound(okk);
+if RadioGroup1.ItemIndex<>2 then
+MessageDlg('Сводка сохранена в файл: '+edit2.text,mtinformation,[mbOk],0);
+if RadioGroup1.ItemIndex=2 then begin form7.pech;{exit;}end;
+button6.enabled:=false;  // ? ? ? ? ? ? ? ?
+comboBox1.Enabled:=true;
+edit1.Enabled:=true;
+comboBox2.Enabled:=true;
+button1.Enabled:=true;
+button4.Enabled:=true;
+button10.Enabled:=true;
+button6.Enabled:={false}true;
+memo1.Enabled:=true;
+checkBox1.Enabled:={false}true;
+button14.Enabled:=false;
+button15.Enabled:=false;
+end;
+
+procedure TForm7.Button14Click(Sender: TObject);
+label a100;
+begin
+xz:=0;
+//form3.sound(star);
+for i:=1 to 9999 do
+  if disk[i]<>'' then
+  begin
+  disk[i][6]:='_';
+  assignfile(f1,comboBox1.text+'\'+edit1.text+'\'+disk[i]);
+  {$i-}
+  reset(f1);
+  {$i+}
+  if IOResult <> 0 then
+     begin
+     form3.sound(err);
+     MessageDlg('Ошибка доступа к файлу: '+comboBox1.text+'\'+edit1.text+'\'+disk[i],
+     mtError,[mbOk],0);
+     goto a100;
+     end;
+  assignfile(f,comboBox1.text+'\Del\'+disk[i]);
+  {$i-}
+  rewrite(f);
+  {$i+}
+  if IOResult <> 0 then
+     begin
+     form3.sound(err);
+     MessageDlg('Ошибка доступа к файлу: '+comboBox1.text+'\Del\'+disk[i],
+     mtError,[mbOk],0);
+     goto a100;
+     end;
+   while not eof(f1) do
+   begin
+   readln(f1,s1);
+   writeln(f,s1);
+   end;
+   closefile(f);
+   closefile(f1);ERase(f1);
+a100:
+  end;                           //  конец удаления
+Formirov;
+button6.Caption:='Готово';
+form3.sound(okk);
+MessageDlg('Удалено '+inttostr(ii)+' НОТАМ.',mtinformation,[mbOk],0);
+if RadioGroup1.ItemIndex<>2 then
+MessageDlg('Сводка сохранена в файл: '+edit2.text,mtinformation,[mbOk],0);
+if RadioGroup1.ItemIndex=2 then begin form3.sound(okk);form7.pech;{exit;}end;
+
+checkbox1.enabled:={false}true;
+button6.enabled:=false;  // ? ? ? ? ? ? ? ?
+comboBox1.Enabled:=false;
+edit1.Enabled:=true;
+comboBox2.Enabled:=true;
+button1.Enabled:=true;
+button4.Enabled:=true;
+button10.Enabled:=true;
+button6.Enabled:={false}true;
+memo1.Enabled:=true;
+button14.Enabled:=false;
+button15.Enabled:=false;
+label5.Caption:='';
+label5.Enabled:=false;
+label6.Enabled:=false;
+memo2.Clear;
+memo2.Enabled:=false;
+end;
+
+procedure TForm7.Memo1KeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+IF button5.enabled=FALSe then
+{IF SHIFT=[SSCTRL] THEN}
+case Key of
+46 : begin
+     Button5.ENABLED:=TRUE;
+     Button11.ENABLED:=TRUE;
+     Button6.ENABLED:=false;
+     CheckBox1.ENABLED:=false;
+     label4.Caption:='';
+     end;
+end;
+end;
+
+procedure TForm7.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+ if button11.enabled=false then
+ begin
+ form3.sound(err);
+ Action:=caNone;
+ MessageDlg('Исправьте ошибку'+#13+'в сводке действующих НОТАМ !!!', mterror,[mbok],0);
+ end;
+end;
+
+end.
