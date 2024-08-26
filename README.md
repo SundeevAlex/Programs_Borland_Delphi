@@ -7,4 +7,4 @@
 ## Для запуска программ необходимо:
 1. Склонировать на свой компьютер данный репозиторий командой:
    
-   git clone ;
+   git clone https://github.com/SundeevAlex/Programs_Borland_Delphi.git;
